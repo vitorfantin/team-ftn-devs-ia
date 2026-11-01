@@ -1,0 +1,36 @@
+name: FTN DevsIA - CI Staging (Validação Rígida de PR)
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - staging
+
+jobs:
+  validar-qualidade-pr:
+    name: Validação de Cobertura 90% & Automações de QA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Configurar Ambiente Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Instalar Dependências
+        run: npm ci
+
+      - name: 🚨 Linter & Auditoria de Código Duplicado
+        run: npm run lint
+
+      - name: 📝 Validar Regra de Comentários (Máx 2 linhas)
+        run: npm run audit:comments
+
+      - name: 🧪 Executar Cobertura de Testes Unitários (Mínimo 90%)
+        run: npm run test:coverage -- --coverageThreshold='{"global":{"lines":90,"statements":90,"functions":90}}'
+
+      - name: 👁️ Executar Automações do QA (Cenários Bons/Ruins via qa-id)
+        run: npm run test:qa-automation

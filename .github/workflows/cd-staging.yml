@@ -1,0 +1,31 @@
+name: FTN DevsIA - CD Staging (Deploy para o QA)
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - staging
+    types: [closed]
+
+jobs:
+  deploy-ambiente-teste:
+    name: Deploy no Servidor de Testes Isolado
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Configurar Ambiente Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Instalar Dependências
+        run: npm ci
+
+      - name: 🚀 Realizar Deploy no Servidor de Testes em Nuvem
+        run: |
+          echo "Filtros automatizados aprovados! Atualizando ambiente exclusivo do QA para testes visuais humanos..."
+          npm run deploy:staging

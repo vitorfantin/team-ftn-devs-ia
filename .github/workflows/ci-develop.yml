@@ -1,0 +1,32 @@
+name: FTN DevsIA - CI Develop (Validação de PR)
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  validar-pr-develop:
+    name: Testes Unitários & Auditoria Clean Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Configurar Ambiente Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Instalar Dependências
+        run: npm ci
+
+      - name: 🚨 Linter & Auditoria de Código Duplicado
+        run: npm run lint
+
+      - name: 📝 Validar Regra de Comentários (Máx 2 linhas)
+        run: npm run audit:comments
+
+      - name: ⚙️ Executar Testes Unitários Base (TDD)
+        run: npm run test:unit

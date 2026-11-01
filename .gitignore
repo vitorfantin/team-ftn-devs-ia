@@ -1,0 +1,44 @@
+# ─── SEGURANÇA E AMBIENTES ──────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+certs/
+
+# ─── DEPENDÊNCIAS E COMPILAÇÃO (NODE / DOCKER / BUILD) ──────────────────────
+node_modules/
+/dist
+/build
+/out
+.npm
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# ─── AGENTES DE IA & EDITORES (CURSOR, CLAUDE, AGENTS) ──────────────────────
+.cursor/logs/
+.cursor/cache/
+.claude/logs/
+.claude/cache/
+.agents/logs/
+.agents/cache/
+.gemini/logs/
+.gemini/cache/
+onp-spec-driven.log
+.vscode/
+.idea/
+
+# ─── QA, TESTES, LOGS E MÍDIAS ──────────────────────────────────────────────
+/coverage/
+.nyc_output/
+cypress/videos/
+cypress/screenshots/
+__tests__/__snapshots__/
+*.mp4
+*.mov
+*.png
+*.jpg
+*.jpeg
+*.gif
+.DS_Store

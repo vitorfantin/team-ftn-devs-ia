@@ -44,14 +44,14 @@ Este projeto utiliza como motor e pilar mecânico de orquestração paralela o f
 
 A abordagem de desenvolvimento baseado em especificações (*Spec-Driven Development*) aplicada nas automações do time FTN DevsIA é uma extensão direta das soluções inovadoras de engenharia de prompts e controle de branches por *worktrees* criadas por ele.
 
-* **Repositório Base Original:** [onovoprogramador/onp-spec-driven](https://github.com/onovoprogramador/onp-spec-driven
+* **Repositório Base Original:** [onovoprogramador/onp-spec-driven](https://github.com/onovoprogramador/onp-spec-driven)
 * **Canal Oficial:** [O Novo Programador](https://www.youtube.com/@ONovoProgramador)
 
 *Agradecimentos ao criador por disponibilizar a engine open-source que possibilita a evolução de times autônomos de IA.*
 
 
 
-
+```
 raiz-do-seu-projeto/
 ├── .agent/
 │   └── skills/                         # 👥 As Mentes Especialistas do Time FTN
@@ -84,3 +84,4 @@ raiz-do-seu-projeto/
 ├── .gitignore                          # Ignore padrão do time contra vazamentos e lixo de IAs
 ├── install-ftn.sh                      # O script auxiliar que realizou a instalação
 └── README.md                           # O manual geral do repositório
+```

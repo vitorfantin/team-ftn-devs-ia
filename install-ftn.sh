@@ -20,11 +20,6 @@ if [ -d ".spec" ]; then
     ((CONFLITOS++))
 fi
 
-if [ -d ".github/workflows" ]; then
-    AVISOS="${AVISOS}⚠️  A pasta '.github/workflows' já existe. Nossos micro-workflows de CI/CD podem conflitar com as esteiras atuais.\n"
-    ((CONFLITOS++))
-fi
-
 if [ -d "docs" ]; then
     AVISOS="${AVISOS}⚠️  A pasta 'docs' já existe. A criação das subpastas ftn pode misturar arquivos legados.\n"
     ((CONFLITOS++))
@@ -138,7 +133,7 @@ Sempre que o usuário digitar este comando no chat, o ecossistema de agentes dev
    * Emite Handoff para `@SecOps`.
 
 7. **Fase 6 - `@SecOps`:**
-   * Executa `.github/workflows/security-scan.yml`, audita integridade de segredos e hashes.
+   * Executa auditoria local de segurança (SAST via `npm audit`, varredura de segredos e higiene do Git).
    * Anexa o relatório `docs/auditoria/security-report.md` no ClickUp e homologa o status final para `🛡️ SecOps Homologado (Pronto para Produção)`.
 EOF
 

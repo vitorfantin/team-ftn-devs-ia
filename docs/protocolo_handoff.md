@@ -25,7 +25,7 @@ Este documento define o contrato inegociável de transição de tarefas entre os
 | **3** | `@BackendDev`<br>`@FrontendDev`<br>`@MobileDev` | Specs de Produto, Arquitetura, Design no Doop e DER | Assumem cards no ClickUp. Backend atualiza DER vivo (`docs/banco_de_dados/diagrama_er.md`), devs codificam TDD ≥90%, abrem PR e movem para `Pronto para QA`. | Pull Request aberto para `develop`<br>`docs/banco_de_dados/diagrama_er.md` atualizado | `@QATester` |
 | **4** | `@QATester` | PR aberto + Tabela de `qa-id` da spec | 1. Registra Casos de Teste no ClickUp (`📝 Casos de Teste Criados`).<br>2. Automatiza E2E sem XPath e atualiza para `🤖 Automatizado & Aprovado`. | `docs/testes/casos_de_teste/[nome].md`<br>Suíte E2E automatizada e PR aprovado | `@DevOps` (se aprovado) |
 | **5** | `@DevOps` | Merge aprovado em `develop` ou `staging` | Publica em Staging, comenta a URL segura (`://dominio.com.br`) no ClickUp e move status para `🌐 Publicado em Staging`. | Deploy ativo em staging | `@SecOps` |
-| **6** | `@SecOps` | Deploy ativo e código mesclado | Executa `security-scan.yml`, anexa relatório de auditoria e marca no ClickUp como `🛡️ SecOps Homologado (Pronto para Produção)`. | `docs/auditoria/security-report.md` | Ciclo concluído |
+| **6** | `@SecOps` | Deploy ativo e código mesclado | Executa auditoria local de segurança (SAST via `npm audit`, varredura de segredos e higiene do Git), anexa relatório de auditoria e marca no ClickUp como `🛡️ SecOps Homologado (Pronto para Produção)`. | `docs/auditoria/security-report.md` | Ciclo concluído |
 
 ---
 

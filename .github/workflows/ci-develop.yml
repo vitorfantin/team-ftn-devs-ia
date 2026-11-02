@@ -1,4 +1,4 @@
-name: FTN DevsIA - CI Develop (Validação de PR)
+name: FTN DevsIA - CI Develop (Validação Pré-Merge de PR)
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   validar-pr-develop:
-    name: Testes Unitários & Auditoria Clean Code
+    name: Testes Unitários, Componentes & Auditoria Clean Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout do Código
@@ -25,8 +25,8 @@ jobs:
       - name: 🚨 Linter & Auditoria de Código Duplicado
         run: npm run lint
 
-      - name: 📝 Validar Regra de Comentários (Máx 2 linhas)
+      - name: 📝 Validar Regra de Comentários (Máximo 2 linhas)
         run: npm run audit:comments
 
-      - name: ⚙️ Executar Testes Unitários Base (TDD)
+      - name: ⚙️ [Pirâmide Nível 1 & 2] Testes Unitários & Componentes (TDD)
         run: npm run test:unit

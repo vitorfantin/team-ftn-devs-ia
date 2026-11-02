@@ -1,0 +1,45 @@
+name: FTN DevsIA - SecOps Security Scan (SAST & Segredos)
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - staging
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  auditoria-seguranca:
+    name: Varredura de Segurança SAST & Zero-Secret Leak
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🛡️ Auditoria contra Vazamento de Segredos (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: false
+
+      - name: 📦 Configurar Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: 🔍 Auditoria de Vulnerabilidades em Dependências (SAST)
+        run: npm audit --audit-level=high
+
+      - name: 🧹 Validação de Higiene do Repositório (.gitignore)
+        run: |
+          echo "Verificando se arquivos sensíveis ou pastas de agentes de IA foram commitados..."
+          if git ls-files | grep -E '(\.env|\.pem|\.key|\.cursor/|\.claude/|\.agents/|\.gemini/)'; then
+            echo "❌ ERRO DE SECOPS: Arquivos sensíveis ou caches de agentes detectados no controle de versão!"
+            exit 1
+          fi
+          echo "✅ Higiene de repositório aprovada. Nenhum arquivo proibido rastreado."

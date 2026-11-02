@@ -1,17 +1,41 @@
 # EM TESTE PROJETO PARTICULAR, LIBERADO PARA TODOS USAREM E ACEITO FEEDBACKS DE MELHORIAS.
 
-
-# 🚀 FTN DevsIA - Ecossistema de Governança e Automação Sênior - 
+# 🚀 FTN DevsIA - Ecossistema de Governança e Automação Sênior
 
 ## 🎯 Objetivo do Projeto
 O objetivo principal deste ecossistema é padronizar e blindar o ciclo de desenvolvimento de software do time **FTN DevsIA** (tanto para plataformas Web quanto para aplicativos em Flutter), operando com o nível de maturidade de grandes empresas de tecnologia do mercado. 
 
 Este ecossistema garante de forma intransponível:
-* **Isolamento de Papéis:** 8 agentes de IA especialistas que atuam estritamente em suas funções de alçada.
-* **Qualidade e Estabilidade:** Travas mecânicas no Pull Request exigindo TDD com no mínimo 90% de cobertura geral e comentários de código de até 2 linhas.
-* **Automação de QA Inquebrável:** Proibição absoluta de caminhos XPath, forçando a seleção puramente por atributos `qa-id` / `data-qa` em cenários bons e ruins.
+* **Isolamento de Papéis & Protocolo de Handoff:** 8 agentes de IA especialistas que atuam estritamente em suas funções de alçada, com passagem formal de bastão sem interferência mútua.
+* **Gestão e Rastreabilidade Centralizada no ClickUp:** 100% das demandas passam pelo ClickUp (Features, quebra de subtarefas de engenharia, registro de Casos de Teste planejados e automatizados, e documentações sincronizadas).
+* **Pirâmide de Testes Completa (Cobertura Total):** Implementação obrigatória de todos os níveis da pirâmide de testes (Unitários, Componentes/Widgets, Integração com Postgres 18.6, Contratos de API e E2E via `qa-id`), com TDD e cobertura mínima de 90%.
+* **Automação de QA Inquebrável:** Proibição absoluta de caminhos XPath, forçando o planejamento prévio de Casos de Teste e a seleção puramente por atributos `qa-id` / `data-qa` em cenários bons, ruins e anti-crash (`btn-error-retry`).
 * **Ambiente de Testes Isolado:** Infraestrutura modular em micro-serviços (GitHub Actions) com deploy automático em subdomínio dedicado (`://dominio.com.br`) gerenciado via Docker Swarm, Portainer e Traefik no Ubuntu Server.
-* **Segurança Ativa (DevSecOps):** Blindagem de borda contra ataques de hackers via Basic Auth no Traefik, auditoria SAST contra vazamento de segredos (Zero-Secret Leak) e `.gitignore` higienizado.
+* **Segurança Ativa (DevSecOps):** Blindagem de borda contra ataques de hackers via Basic Auth no Traefik, esteira dedicada de auditoria SAST (`security-scan.yml`), caça a vazamentos de segredos (Zero-Secret Leak) e `.gitignore` higienizado.
+
+---
+
+## 🔄 Protocolo de Handoff & Rastreabilidade no ClickUp
+
+Para eliminar ambiguidades e sobreposições, a execução segue uma esteira sequencial orientada a artefatos e cards do ClickUp:
+
+```text
+[Fase 0: @ProductManager]  ──► Cria Feature & Subtarefas no ClickUp + .spec/constituicao.md
+         │
+[Fase 1: @TechLead]        ──► Assume card [TL], anexa .spec/arquitetura.md e refina subtarefas
+         │
+[Fase 2: @UIUXDesigner]    ──► Projeta no Doop Canvas (Local/Rede), gera docs/design/ e homologa no ClickUp
+         │
+[Fase 3: @Devs (Front/Mob/Back)] ──► Back atualiza DER vivo, Front/Mob iniciam pós-Doop, TDD ≥90% e PR
+         │
+[Fase 4: @QATester]        ──► 1º Registra Casos no ClickUp ➔ 2º Automatiza E2E e Aprova
+         │
+[Fase 5: @DevOps]          ──► Publica em Staging Swarm e comenta URL segura no ClickUp
+         │
+[Fase 6: @SecOps]          ──► Roda security-scan.yml, anexa relatório e homologa no ClickUp
+```
+
+Consulte a íntegra das regras no arquivo [`docs/protocolo_handoff.md`](file:///Users/vitorfantin/.gemini/antigravity/worktrees/team-ftn-devs-ia/analise_designacao_tarefas_especificas/docs/protocolo_handoff.md).
 
 ---
 
@@ -38,6 +62,67 @@ O agente `@ProductManager` assumirá o controle imediato do chat disparando a **
 
 ---
 
+## 📂 Estrutura Modular do Repositório
+
+```text
+raiz-do-seu-projeto/
+├── .agent/
+│   └── skills/                         # 👥 As Mentes Especialistas do Time FTN
+│       ├── iniciar_time_ftn.md         # O arquivo mestre que habilita o comando /iniciar-time-ftn
+│       ├── 1_ProductManager.md         # Fase Zero, Escopo, Negócio e Tabela Mestra de qa-id
+│       ├── 2_TechLead.md               # Arquitetura, Postgres 18.6, Pirâmide de testes e SOLID
+│       ├── 3_UIUXDesigner.md           # Design System, WCAG e Fallback Anti-Crash (btn-error-retry)
+│       ├── 4a_FrontendDev.md           # Desenvolvimento Web, TDD 90% e Injeção de qa-ids
+│       ├── 4b_MobileDev.md             # Desenvolvimento Flutter, Secure Storage e Performance
+│       ├── 5_BackendDev.md             # APIs seguras, OWASP Top 10 e Migrations
+│       ├── 6_QATester.md               # Automações E2E sem XPath, Testes de Stress e Gatekeeper de PR
+│       ├── 7_DevOps.md                 # Docker Swarm, Traefik, Basic Auth e CI/CD Modular
+│       └── 8_SecOps.md                 # Auditoria SAST/DAST, .gitignore e Zero-Secret Leak
+│
+├── .github/
+│   └── workflows/                      # ⚙️ Esteiras Modulares Independentes
+│       ├── ci-develop.yml              # Testes unitários e auditoria clean code pré-merge
+│       ├── ci-staging.yml              # O Filtro Rígido: valida cobertura ≥90% e qa-ids
+│       ├── cd-staging.yml              # Deploy automático em subdomínio de homologação
+│       ├── cd-production.yml           # Deploy final com tag de versão e rollback imediato
+│       └── security-scan.yml           # Auditoria SecOps isolada (Gitleaks, SAST e higiene Git)
+│
+├── docker/                              # 🐳 Ambientes & Stacks Isoladas
+│   └── doop/                           # Servidor do Doop UI/UX Canvas (Dockerfile e docker-compose.yml)
+│
+├── docs/                               # 📂 Central de Conhecimento e Governança
+│   ├── protocolo_handoff.md            # Contrato de transição e alçadas entre os agentes
+│   ├── documentacao_projeto/           # Especificações de negócio homologadas
+│   ├── tutoriais/
+│   │   ├── doop_uiux.md                # Guia de instalação e design de telas no Doop Canvas
+│   │   ├── integracao_clickup.md       # Guia oficial de rastreabilidade, features e tarefas no ClickUp
+│   │   └── infra_e_testes.md           # Guia de túneis locais com SSL (Ngrok) e Swarm
+│   ├── design/
+│   │   └── design_system.md            # Tokens visuais, estados e telas de erro crítico
+│   ├── banco_de_dados/
+│   │   └── diagrama_er.md              # DER vivo (Mermaid) e dicionário de dados PostgreSQL 18.6
+│   ├── testes/
+│   │   ├── piramide_de_testes.md       # A governança dos 5 níveis da pirâmide de testes
+│   │   └── casos_de_teste/             # Casos de teste estruturados (BDD/Gherkin) pré-automação
+│   └── auditoria/
+│       └── security-report.md          # Relatório oficial de auditoria SecOps
+│
+├── scripts/                            # 🛠️ Utilitários de Automação
+│   ├── clickup_sync.js                 # Helper CLI de sincronização via API do ClickUp (REST v2)
+│   └── install_doop.sh                 # Assistente de instalação e execução do Doop (Docker/Bun)
+│
+├── .spec/                              # 📝 Especificações Mecânicas do Projeto
+│   ├── features/                       # Especificações atômicas de cada feature com tabela qa-id
+│   ├── constituicao.md                 # As regras inegociáveis interpretadas pela IA
+│   └── arquitetura.md                  # Modelagem de dados, stack e contratos técnicos
+│
+├── .gitignore                          # Ignore blindado contra vazamentos e caches de agentes de IA
+├── install-ftn.sh                      # O script assistente de instalação
+└── README.md                           # O manual geral do repositório
+```
+
+---
+
 ## 🤝 Créditos e Reconhecimento (Engine Base)
 
 Este projeto utiliza como motor e pilar mecânico de orquestração paralela o framework **onp-spec-driven** desenvolvido pelo canal **O Novo Programador**. 
@@ -48,40 +133,3 @@ A abordagem de desenvolvimento baseado em especificações (*Spec-Driven Develop
 * **Canal Oficial:** [O Novo Programador](https://www.youtube.com/@ONovoProgramador)
 
 *Agradecimentos ao criador por disponibilizar a engine open-source que possibilita a evolução de times autônomos de IA.*
-
-
-
-```
-raiz-do-seu-projeto/
-├── .agent/
-│   └── skills/                         # 👥 As Mentes Especialistas do Time FTN
-│       ├── iniciar_time_ftn.md         # O arquivo mestre que habilita o comando /iniciar-time-ftn
-│       ├── 1_ProductManager.md         # Prompts de Concepção, Fase Zero, Idioma e Escopo
-│       ├── 2_TechLead.md               # Prompts de Arquitetura, Postgres 18.6, Pirâmide de testes e SOLID
-│       ├── 3_UIUXDesigner.md           # Prompts de Design System, WCAG e Fallbacks de Erro Crítico
-│       ├── 4a_FrontendDev.md           # Prompts de Desenvolvimento Web, TDD 90% e qa-ids
-│       ├── 4b_MobileDev.md             # Prompts de Desenvolvimento Flutter de Alta Performance e Secure Storage
-│       ├── 5_BackendDev.md             # Prompts de APIs seguras, OWASP Top 10 e Migrations
-│       ├── 6_QATester.md               # Prompts de Automações de testes (Bons/Ruins) sem XPath
-│       ├── 7_DevOps.md                 # Prompts de Docker Swarm, Traefik, Basic Auth e CI/CD Modular
-│       └── 8_SecOps.md                 # Prompts de Auditoria SAST, .gitignore e Zero-Secret Leak
-│
-├── .github/
-│   └── workflows/                      # ⚙️ Esteiras Modulares Independentes (Estilo Micro-serviços)
-│       ├── ci-staging.yml              # O Filtro Rígido: valida cobertura e qa-id antes do merge
-│       ├── cd-staging.yml              # O Deploy: Atualiza o subdomínio ://dominio.com.br pós-merge
-│       └── cd-production.yml           # O Deploy Final: Publica em produção com tag de rollback imediato
-│
-├── docs/                               # 📂 Central de Conhecimento Totalmente Despoluída
-│   ├── documentacao_projeto/           # Pasta destinada a especificações de negócio homologadas
-│   └── tutoriais/
-│       └── infra_e_testes.md           # Bíblia técnica de túneis locais com SSL (Ngrok) e Swarm
-│
-├── .spec/                              # 📝 Pasta criada pelo framework do O Novo Programador
-│   ├── features/                       # Pasta onde as especificações técnicas atômicas serão criadas
-│   └── constituicao.md                 # As regras inegociáveis de engenharia interpretadas pela IA
-│
-├── .gitignore                          # Ignore padrão do time contra vazamentos e lixo de IAs
-├── install-ftn.sh                      # O script auxiliar que realizou a instalação
-└── README.md                           # O manual geral do repositório
-```

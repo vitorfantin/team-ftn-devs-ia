@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  doop-uiux:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ftn-doop-design
+    restart: unless-stopped
+    ports:
+      - "${DOOP_PORT:-3000}:3000"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+      - NODE_ENV=development
+    volumes:
+      - doop_data:/app/data
+    networks:
+      - ftn-network
+
+volumes:
+  doop_data:
+    driver: local
+
+networks:
+  ftn-network:
+    driver: bridge

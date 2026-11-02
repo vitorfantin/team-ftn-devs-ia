@@ -54,12 +54,23 @@ Se você clonou o `team-ftn-devs-ia` na sua máquina, informe o caminho da sua a
 ```
 *(Se você executar apenas `./install-ftn.sh`, o script identificará que você está no repositório matriz e solicitará interativamente a pasta da sua aplicação).*
 
+> **Dica para projetos existentes com pastas já criadas (`.spec`, `docs`, `.github`):**
+> * O instalador perguntará interativamente se você deseja **Continuar e copiar os arquivos para dentro das pastas já criadas** (Opção 1, padrão ao apertar Enter);
+> * Ou você pode passar a flag `-f` / `--force` para continuar e mesclar automaticamente:
+>   ```bash
+>   ./install-ftn.sh /caminho/absoluto/da/sua-aplicacao --force
+>   ```
+
 ---
 
 ### Opção B: Diretamente na Raiz da sua Aplicação (Via cURL)
 Abra o terminal na pasta da sua aplicação existente e execute o instalador oficial:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/vitorfantin/team-ftn-devs-ia/main/install-ftn.sh | bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/vitorfantin/team-ftn-devs-ia/main/install-ftn.sh)"
+```
+*(Ou com a flag `--force` para mesclar diretamente nas pastas existentes):*
+```bash
+curl -fsSL https://raw.githubusercontent.com/vitorfantin/team-ftn-devs-ia/main/install-ftn.sh | bash -s -- --force
 ```
 
 ---

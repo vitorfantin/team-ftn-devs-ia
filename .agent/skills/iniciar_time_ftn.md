@@ -29,7 +29,7 @@ Sempre que o usuário digitar este comando no chat, o ecossistema de agentes esp
     - `.agent/skills/` (todos os perfis `[0-9]*.md` e `iniciar_time_ftn.md`)
 
 * **Se o workspace atual já for o projeto da aplicação do usuário:**
-  * Garanta que as estruturas acima estejam presentes na raiz da aplicação antes de iniciar o questionário.
+  * Garanta que as estruturas acima estejam presentes na raiz da aplicação. Caso as pastas (`.spec/`, `docs/`, `.github/`, etc.) já existam, copie e mescle os novos arquivos da governança FTN dentro dessas pastas já criadas, preservando os arquivos preexistentes do projeto.
 
 ---
 

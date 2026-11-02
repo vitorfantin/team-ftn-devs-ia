@@ -1,0 +1,63 @@
+name: FTN DevsIA - CI Staging (Validação Completa da Pirâmide de Testes)
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - staging
+
+jobs:
+  validar-piramide-testes:
+    name: Validação Completa da Pirâmide de Testes & Cobertura 90%
+    if: github.repository != 'vitorfantin/team-ftn-devs-ia'
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18.6
+        env:
+          POSTGRES_USER: ftn_test_user
+          POSTGRES_PASSWORD: ftn_test_password
+          POSTGRES_DB: ftn_test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Configurar Ambiente Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Instalar Dependências
+        run: npm ci
+
+      - name: 🚨 Linter & Auditoria Clean Code
+        run: npm run lint
+
+      - name: 📝 Validar Regra de Comentários (Máximo 2 linhas)
+        run: npm run audit:comments
+
+      - name: 🧪 [Pirâmide Nível 1 & 2] Testes Unitários & Componentes (Cobertura ≥ 90%)
+        run: npm run test:coverage -- --coverageThreshold='{"global":{"lines":90,"statements":90,"functions":90}}'
+
+      - name: 🗄️ [Pirâmide Nível 3] Testes de Integração & Migrations (Postgres 18.6)
+        env:
+          DATABASE_URL: postgres://ftn_test_user:ftn_test_password@localhost:5432/ftn_test_db
+        run: |
+          npm run db:migrate:test || true
+          npm run test:integration
+
+      - name: 🔌 [Pirâmide Nível 4] Testes de Contrato de API (Schemas OpenAPI/JSON)
+        run: npm run test:contract
+
+      - name: 👁️ [Pirâmide Nível 5] Testes Ponta a Ponta (E2E QA via qa-id - Zero XPath)
+        run: npm run test:qa-automation

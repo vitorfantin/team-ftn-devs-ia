@@ -20,6 +20,11 @@ if [ -d ".spec" ]; then
     ((CONFLITOS++))
 fi
 
+if [ -d ".github/workflows" ]; then
+    AVISOS="${AVISOS}⚠️  A pasta '.github/workflows' já existe. Nossos micro-workflows de CI/CD podem conflitar com as esteiras atuais.\n"
+    ((CONFLITOS++))
+fi
+
 if [ -d "docs" ]; then
     AVISOS="${AVISOS}⚠️  A pasta 'docs' já existe. A criação das subpastas ftn pode misturar arquivos legados.\n"
     ((CONFLITOS++))
@@ -83,11 +88,18 @@ mkdir -p docs/banco_de_dados
 mkdir -p docker/doop
 mkdir -p .spec/features
 mkdir -p .agent/skills
+mkdir -p .github/workflows
 
-# Copia arquivos dos especialistas se executado localmente no repositório
+# Copia arquivos dos especialistas e esteiras de CI/CD para o projeto destino
+SCRIPT_DIR="$(dirname "$0")"
 if ls [0-9]*.md 1> /dev/null 2>&1; then
     echo "📋 Copiando perfis especialistas para .agent/skills/..."
     cp -f [0-9]*.md .agent/skills/ 2>/dev/null || true
+fi
+
+if [ -d "$SCRIPT_DIR/.github/workflows" ]; then
+    echo "⚙️ Instalando esteiras modulares de CI/CD em .github/workflows/..."
+    cp -rf "$SCRIPT_DIR/.github/workflows/"* .github/workflows/ 2>/dev/null || true
 fi
 
 # Cria o gatilho de comando para o ecossistema de IAs saber como agir

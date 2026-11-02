@@ -92,16 +92,16 @@ Este documento estabelece a governança de qualidade de software do ecossistema 
 * **Comando Padrão:** `npm run test:stress`
 
 ### 2. Testes de Segurança (SAST/DAST & Zero-Secret Leak)
-* **Responsável:** `@SecOps` via auditoria local direta (`npm audit`, varredura de credenciais e `.gitignore`).
+* **Responsável:** `@SecOps` via workflow isolado `.github/workflows/security-scan.yml` (instalado nos projetos finais).
 * **Escopo:** Varredura de credenciais com Gitleaks, análise estática de código com `npm audit`, conformidade OWASP Top 10 e higienização do `.gitignore`.
 
 ---
 
 ## 🚦 Matriz de Comandos da Pirâmide no `package.json`
 
-Para padronizar a execução local pelos desenvolvedores e pelo QA antes da abertura e homologação de PRs, o repositório adota a seguinte convenção de scripts:
+Para padronizar a execução local e na esteira de CI/CD dos projetos destino, o repositório adota a seguinte convenção de scripts:
 
-| Nível da Pirâmide | Comando npm | Executor Principal | Validação de PR |
+| Nível da Pirâmide | Comando npm | Executor Principal | Gate de CI (Projetos Finais) |
 | :--- | :--- | :--- | :---: |
 | **Unitários** | `npm run test:unit` | Devs | PR Develop / Staging |
 | **Componentes & A11y** | `npm run test:component` | Front / Mobile | PR Develop / Staging |
@@ -110,4 +110,4 @@ Para padronizar a execução local pelos desenvolvedores e pelo QA antes da aber
 | **Cobertura Geral (≥90%)** | `npm run test:coverage` | Todos os Devs | PR Staging (Bloqueante) |
 | **E2E / QA Automação** | `npm run test:qa-automation` | `@QATester` | PR Staging (Bloqueante) |
 | **Stress & Performance** | `npm run test:stress` | `@QATester` | Staging / On Demand |
-| **Segurança & SAST** | `npm run test:security` | `@SecOps` | Auditoria Local de Release |
+| **Segurança & SAST** | `npm run test:security` | `@SecOps` | Workflow Security Scan |

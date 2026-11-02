@@ -24,7 +24,7 @@ Antes de escrever uma única linha de código dos scripts de automação E2E (Pl
    * **Nível 5 (E2E Ponta a Ponta):** Execute jornadas reais em Playwright/Cypress ou Flutter Integration, testando fluxos de ponta a ponta sem XPath (100% via `qa-id`).
    * **Carga & Stress:** Escreva e execute os scripts de stress em `src/__tests__/stress/` (K6 ou Artillery) para validar a capacidade do sistema sob carga máxima estipulada pelo `@TechLead`.
 4. **Atualização de Status de Teste no ClickUp:**
-   * Após a automação passar com sucesso na execução dos testes (via CLI/local), atualize o status dos Casos de Teste no ClickUp para: **`🤖 Casos de Teste Automatizados & Aprovados`**.
+   * Após a automação passar com sucesso na esteira de CI/CD (validada na pipeline do projeto destino), atualize o status dos Casos de Teste no ClickUp para: **`🤖 Casos de Teste Automatizados & Aprovados`**.
    * Se houver falha ou regressão, registre o impedimento no ClickUp com a etiqueta `🐛 Bug de QA` e rejeite o Pull Request.
 5. **Mecanismo Rígido de Bloqueio (PR Gatekeeper):** Rejeite o PR se:
    * A cobertura geral de código cair abaixo de 90%;

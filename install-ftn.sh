@@ -4,39 +4,64 @@
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
+BLUE='\033[0;34m'
 NC='\033[0m' # Sem cor
 
-echo -e "${GREEN}🚀 [FTN DevsIA] Iniciando o Assistente Inteligente de Configuração...${NC}\n"
+echo -e "${GREEN}🚀 [FTN DevsIA] Assistente Inteligente de Instalação na Aplicação${NC}\n"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# FASE 1: VALIDAÇÃO DE CONFLITOS E RISCOS (BROWNFIELD / LEGADO)
+# FASE 0: RESOLUÇÃO DA RAIZ DO PROJETO DA APLICAÇÃO (DESTINO)
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${GREEN}[1/3] Realizando varredura preventiva no diretório atual...${NC}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
+REPO_NAME="team-ftn-devs-ia"
+
+if [ -n "$1" ]; then
+    TARGET_APP_DIR="$1"
+elif [ -f "$PWD/8_SecOps.md" ] && [ -f "$PWD/1_ProductManager.md" ]; then
+    echo -e "${YELLOW}⚠️  ATENÇÃO: Você executou o instalador dentro do repositório matriz ($REPO_NAME).${NC}"
+    echo -e "As estruturas ${RED}NÃO devem ser instaladas aqui${NC}, mas sim na ${GREEN}raiz do seu projeto de aplicação${NC}.\n"
+    read -p "Digite o caminho absoluto da pasta da sua aplicação (ex: /Users/seu-usuario/meu-app): " USER_INPUT_DIR
+    TARGET_APP_DIR="$USER_INPUT_DIR"
+else
+    TARGET_APP_DIR="$PWD"
+fi
+
+if [ -z "$TARGET_APP_DIR" ] || [ ! -d "$TARGET_APP_DIR" ]; then
+    echo -e "${RED}❌ Diretório da aplicação inválido ou não encontrado: '$TARGET_APP_DIR'.${NC}"
+    exit 1
+fi
+
+TARGET_APP_DIR="$(cd "$TARGET_APP_DIR" && pwd)"
+echo -e "📁 ${BLUE}Diretório Alvo da Aplicação:${NC} ${YELLOW}$TARGET_APP_DIR${NC}\n"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FASE 1: VALIDAÇÃO DE CONFLITOS E RISCOS NA APLICAÇÃO (BROWNFIELD / LEGADO)
+# ─────────────────────────────────────────────────────────────────────────────
+echo -e "${GREEN}[1/3] Realizando varredura preventiva na raiz da aplicação...${NC}"
 CONFLITOS=0
 AVISOS=""
 
-if [ -d ".spec" ]; then
-    AVISOS="${AVISOS}⚠️  A pasta '.spec' já existe. Inicializar o framework pode sobrescrever regras de negócio antigas.\n"
+if [ -d "$TARGET_APP_DIR/.spec" ]; then
+    AVISOS="${AVISOS}⚠️  A pasta '.spec' já existe na aplicação. Sobrescrever pode alterar regras existentes.\n"
     ((CONFLITOS++))
 fi
 
-if [ -d ".github/workflows" ]; then
-    AVISOS="${AVISOS}⚠️  A pasta '.github/workflows' já existe. Nossos micro-workflows de CI/CD podem conflitar com as esteiras atuais.\n"
+if [ -d "$TARGET_APP_DIR/.github/workflows" ]; then
+    AVISOS="${AVISOS}⚠️  A pasta '.github/workflows' já existe. Nossas esteiras modulares de CI/CD podem conflitar com as atuais.\n"
     ((CONFLITOS++))
 fi
 
-if [ -d "docs" ]; then
-    AVISOS="${AVISOS}⚠️  A pasta 'docs' já existe. A criação das subpastas ftn pode misturar arquivos legados.\n"
+if [ -d "$TARGET_APP_DIR/docs" ]; then
+    AVISOS="${AVISOS}⚠️  A pasta 'docs' já existe na aplicação.\n"
     ((CONFLITOS++))
 fi
 
 if [ $CONFLITOS -gt 0 ]; then
-    echo -e "${YELLOW}\n🚨 ATENÇÃO: Detectamos possíveis conflitos no projeto existente:${NC}"
+    echo -e "${YELLOW}\n🚨 ATENÇÃO: Detectamos possíveis conflitos no seu projeto existente:${NC}"
     echo -e "${YELLOW}${AVISOS}${NC}"
-    echo -e "Essas alterações são cruciais para o padrão FTN, mas podem modificar arquivos locais."
-    read -p "Deseja continuar e aplicar as configurações mesmo assim? (s/n): " CONFIRMACAO
+    read -p "Deseja continuar e aplicar as configurações na aplicação mesmo assim? (s/n): " CONFIRMACAO
     if [[ ! "$CONFIRMACAO" =~ ^[Ss]$ ]]; then
-        echo -e "${RED}❌ Instalação cancelada pelo usuário para proteger o código atual.${NC}"
+        echo -e "${RED}❌ Instalação cancelada para proteger o projeto atual.${NC}"
         exit 1
     fi
     echo -e "${GREEN}✅ Confirmação recebida. Prosseguindo com cautela...${NC}\n"
@@ -70,84 +95,69 @@ esac
 echo -e "${GREEN}✅ Agente selecionado: $PARAM_AGENTE${NC}\n"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# FASE 3: INSTALAÇÃO DA ENGINE E ESTRUTURA MODULAR
+# FASE 3: INSTALAÇÃO DA ENGINE E CÓPIA DAS ESTRUTURAS NA APLICAÇÃO
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${GREEN}[3/3] Executando downloads e montagem de pastas...${NC}"
+echo -e "${GREEN}[3/3] Instalando framework e copiando estruturas na raiz da aplicação...${NC}"
 
-# Inicializa o framework oficial do ONP com o agente escolhido
+cd "$TARGET_APP_DIR" || exit 1
+
+# Inicializa o framework oficial do ONP com o agente escolhido dentro da aplicação
 echo "📦 Executando npx @onovoprogramador/onp-spec para o agente '$PARAM_AGENTE'..."
 npx @onovoprogramador/onp-spec init --agents $PARAM_AGENTE
 
-# Cria a estrutura rígida de pastas do padrão FTN
-mkdir -p docs/documentacao_projeto
-mkdir -p docs/tutoriais
-mkdir -p docs/design
-mkdir -p docs/auditoria
-mkdir -p docs/testes/casos_de_teste
-mkdir -p docs/banco_de_dados
-mkdir -p docker/doop
-mkdir -p .spec/features
-mkdir -p .agent/skills
-mkdir -p .github/workflows
+# Cria as pastas necessárias na aplicação
+mkdir -p "$TARGET_APP_DIR/docs/documentacao_projeto"
+mkdir -p "$TARGET_APP_DIR/docs/tutoriais"
+mkdir -p "$TARGET_APP_DIR/docs/design"
+mkdir -p "$TARGET_APP_DIR/docs/auditoria"
+mkdir -p "$TARGET_APP_DIR/docs/testes/casos_de_teste"
+mkdir -p "$TARGET_APP_DIR/docs/banco_de_dados"
+mkdir -p "$TARGET_APP_DIR/docker/doop"
+mkdir -p "$TARGET_APP_DIR/.spec/features"
+mkdir -p "$TARGET_APP_DIR/.agent/skills"
+mkdir -p "$TARGET_APP_DIR/.github/workflows"
+mkdir -p "$TARGET_APP_DIR/scripts"
 
-# Copia arquivos dos especialistas e esteiras de CI/CD para o projeto destino
-SCRIPT_DIR="$(dirname "$0")"
-if ls [0-9]*.md 1> /dev/null 2>&1; then
-    echo "📋 Copiando perfis especialistas para .agent/skills/..."
-    cp -f [0-9]*.md .agent/skills/ 2>/dev/null || true
+# Determina a origem dos arquivos (local ou clone remoto temporário via curl)
+TEMP_DIR=""
+if [ -f "$SCRIPT_DIR/1_ProductManager.md" ]; then
+    SOURCE_FILES="$SCRIPT_DIR"
+else
+    echo "🌐 Baixando templates do repositório oficial team-ftn-devs-ia..."
+    TEMP_DIR=$(mktemp -d)
+    git clone --depth 1 https://github.com/vitorfantin/team-ftn-devs-ia.git "$TEMP_DIR" 2>/dev/null
+    SOURCE_FILES="$TEMP_DIR"
 fi
 
-if [ -d "$SCRIPT_DIR/.github/workflows" ]; then
-    echo "⚙️ Instalando esteiras modulares de CI/CD em .github/workflows/..."
-    cp -rf "$SCRIPT_DIR/.github/workflows/"* .github/workflows/ 2>/dev/null || true
+# Copia estruturas essenciais diretamente para a raiz da aplicação
+echo "📋 Copiando perfis especialistas e skills para .agent/skills/..."
+cp -f "$SOURCE_FILES"/[0-9]*.md "$TARGET_APP_DIR/.agent/skills/" 2>/dev/null || true
+
+echo "⚙️ Copiando esteiras modulares de CI/CD para .github/workflows/..."
+cp -rf "$SOURCE_FILES/.github/workflows/"* "$TARGET_APP_DIR/.github/workflows/" 2>/dev/null || true
+
+echo "📂 Copiando central de governança e documentação para docs/..."
+cp -rf "$SOURCE_FILES/docs/"* "$TARGET_APP_DIR/docs/" 2>/dev/null || true
+
+echo "📝 Copiando constituição e arquitetura base para .spec/..."
+cp -f "$SOURCE_FILES/.spec/constituicao.md" "$TARGET_APP_DIR/.spec/" 2>/dev/null || true
+cp -f "$SOURCE_FILES/.spec/arquitetura.md" "$TARGET_APP_DIR/.spec/" 2>/dev/null || true
+
+echo "🐳 Copiando stack do Doop UI/UX Canvas para docker/doop/..."
+cp -rf "$SOURCE_FILES/docker/doop/"* "$TARGET_APP_DIR/docker/doop/" 2>/dev/null || true
+
+echo "🛠️ Copiando utilitários para scripts/..."
+cp -rf "$SOURCE_FILES/scripts/"* "$TARGET_APP_DIR/scripts/" 2>/dev/null || true
+chmod +x "$TARGET_APP_DIR/scripts/"*.sh "$TARGET_APP_DIR/scripts/"*.js 2>/dev/null || true
+
+# Limpa diretório temporário se foi criado
+if [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ]; then
+    rm -rf "$TEMP_DIR"
 fi
 
-# Cria o gatilho de comando para o ecossistema de IAs saber como agir
-cat << 'EOF' > .agent/skills/iniciar_time_ftn.md
-# Command: /iniciar-time-ftn
-# Team: FTN DevsIA
+# Copia ou atualiza o gatilho de comando /iniciar-time-ftn na aplicação
+cp -f "$SOURCE_FILES/.agent/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agent/skills/" 2>/dev/null || true
 
-Sempre que o usuário digitar este comando no chat, o ecossistema de agentes deve ser ativado com governança estrita de papéis, rastreabilidade total no ClickUp (`docs/tutoriais/integracao_clickup.md`) e respeito absoluto ao Protocolo de Handoff (`docs/protocolo_handoff.md`).
-
-## 🎯 Ordem de Execução & Passagem de Bastão (Fases Centralizadas no ClickUp)
-1. **Fase 0 - `@ProductManager` (Assume o chat imediatamente):**
-   * Imprime mensagem de boas-vindas: `🚀 FTN DevsIA - Inicialização de Projeto`.
-   * Dispara a **Fase Zero de Alinhamento** (Proposta, Plataforma Web/Mobile, Regras de Negócio e Estratégia de Legado).
-   * Elabora `.spec/constituicao.md` e a primeira feature em `.spec/features/` com a **Tabela Mestra de qa-id**.
-   * Cria o card da Feature no ClickUp (`[FEATURE] - [Nome]`), anexa os links de spec e documentação, e quebra em subtarefas técnicas ([TL], [UI/UX], [BACK], [FRONT/MOB]).
-   * Emite o token de Handoff para `@TechLead`.
-
-2. **Fase 1 - `@TechLead`:**
-   * Assume o card `[TL]` no ClickUp e refina os requisitos de backend/frontend.
-   * Define arquitetura, banco estático em `postgres:18.6`, contratos de API e metas de teste de stress em `.spec/arquitetura.md` (anexa link no ClickUp).
-   * Emite Handoff para `@UIUXDesigner` e `@BackendDev`.
-
-3. **Fase 2 - `@UIUXDesigner`:**
-   * Assume o card `[UI/UX]` no ClickUp e desenha as telas, componentes e design system no **Doop Canvas** (local ou rede via Docker/Bun).
-   * Mapeia os 5 estados de tela, tokens e fallback anti-crash (`qa-id="btn-error-retry"`) em `docs/design/design_system.md`.
-   * Anexa o link do Doop no ClickUp e marca como `Concluído / Aprovado`.
-   * *(Trava Rígida: `@FrontendDev` e `@MobileDev` só são liberados após aprovação da UI/UX no Doop)*.
-   * Emite Handoff para `@FrontendDev` e/ou `@MobileDev`.
-
-4. **Fase 3 - `@FrontendDev` / `@MobileDev` / `@BackendDev`:**
-   * Assumem cards no ClickUp. O `@BackendDev` atualiza o DER vivo em `docs/banco_de_dados/diagrama_er.md` a cada migration.
-   * Desenvolvem em branches atômicas `feature/*` cobrindo a Pirâmide de Testes (TDD ≥90%, comentários ≤2 linhas e `qa-id`s da spec).
-   * Abrem Pull Request para a branch `develop`, comentam link no ClickUp e emitem Handoff para `@QATester`.
-
-5. **Fase 4 - `@QATester`:**
-   * **Etapa 4.1 (Planejamento):** Estrutura e salva os Casos de Teste em `docs/testes/casos_de_teste/` e registra no ClickUp com status `📝 Casos de Teste Criados`.
-   * **Etapa 4.2 (Automação da Pirâmide):** Valida contratos de API (Nível 4), codifica automações E2E sem XPath via `qa-id` (Nível 5) e executa testes de stress K6 em `src/__tests__/stress/`.
-   * Atualiza status dos testes no ClickUp para `🤖 Casos de Teste Automatizados & Aprovados`, aprova merge para `staging` e emite Handoff para `@DevOps`.
-
-6. **Fase 5 - `@DevOps`:**
-   * Publica no Docker Swarm com Traefik (SSL + Basic Auth) no subdomínio isolado.
-   * Comenta o link de homologação no ClickUp e atualiza status para `🌐 Publicado em Staging`.
-   * Emite Handoff para `@SecOps`.
-
-7. **Fase 6 - `@SecOps`:**
-   * Executa auditoria local de segurança (SAST via `npm audit`, varredura de segredos e higiene do Git).
-   * Anexa o relatório `docs/auditoria/security-report.md` no ClickUp e homologa o status final para `🛡️ SecOps Homologado (Pronto para Produção)`.
-EOF
-
-echo -e "\n${GREEN}✨ [FTN DevsIA] Ecossistema configurado com sucesso e protegido contra quebras!${NC}"
-echo -e "Abra o seu editor ($PARAM_AGENTE) e digite ${YELLOW}/iniciar-time-ftn${NC} no chat para começar."
+echo -e "\n${GREEN}✨ [FTN DevsIA] Todas as estruturas foram copiadas com sucesso para:${NC}"
+echo -e "👉 ${YELLOW}$TARGET_APP_DIR${NC}\n"
+echo -e "Abra o seu editor ($PARAM_AGENTE) na pasta da sua aplicação e digite ${YELLOW}/iniciar-time-ftn${NC} no chat para começar."

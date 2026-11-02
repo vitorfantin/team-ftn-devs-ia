@@ -43,26 +43,35 @@ Consulte a íntegra das regras no arquivo [`docs/protocolo_handoff.md`](file:///
 
 ---
 
-## 🛠️ Guia de Instalação Rápida
+## 🛠️ Guia de Instalação na sua Aplicação
 
-A instalação é controlada de forma interativa por um script assistente na raiz, projetado para prevenir conflitos em códigos existentes.
+As estruturas do ecossistema FTN DevsIA são instaladas **estritamente na raiz do projeto da sua aplicação**, mantendo o repositório matriz clonado (`team-ftn-devs-ia`) limpo e intacto.
 
-### 1. Preparação Local (Na raiz do seu projeto)
-Execute o comando de instalação de uma linha (substituindo pelo seu usuário do GitHub):
+### Opção A: A partir do Repositório Clonado (Local)
+Se você clonou o `team-ftn-devs-ia` na sua máquina, informe o caminho da sua aplicação:
 ```bash
-curl -fsSL https://githubusercontent.com | bash
+./install-ftn.sh /caminho/absoluto/da/sua-aplicacao
+```
+*(Se você executar apenas `./install-ftn.sh`, o script identificará que você está no repositório matriz e solicitará interativamente a pasta da sua aplicação).*
+
+---
+
+### Opção B: Diretamente na Raiz da sua Aplicação (Via cURL)
+Abra o terminal na pasta da sua aplicação existente e execute o instalador oficial:
+```bash
+curl -fsSL https://raw.githubusercontent.com/vitorfantin/team-ftn-devs-ia/main/install-ftn.sh | bash
 ```
 
-### 2. Fluxo do Assistente Interativo
-* **Varredura Preventiva:** Se o projeto for em andamento (Brownfield / Legado), o script alertará sobre pastas existentes e pedirá sua confirmação (`s/n`) para continuar com cautela.
-* **Seleção do Agente de IA:** Digite a opção correspondente ao editor de inteligência artificial que você irá trabalhar: `1 - Antigravity`, `2 - Cursor`, `3 - Codex` ou `4 - Claude Code`.
+---
 
 ### 3. Ativação no Chat da IA
-Abra o seu editor configurado, acesse o chat da IA e digite o comando mestre:
+Abra o seu editor na pasta da **sua aplicação**, acesse o chat da IA e digite o comando mestre:
 ```text
 /iniciar-time-ftn
 ```
-O agente `@ProductManager` assumirá o controle imediato do chat disparando a **Fase Zero de Alinhamento** para travar o escopo e o idioma do repositório antes de liberar as tarefas técnicas.
+O agente `@ProductManager` assumirá o controle imediato:
+* Se detectar que você está no repositório matriz clonado, ele **bloqueia** a criação de arquivos locais e pede o caminho da aplicação;
+* Se estiver na pasta da sua aplicação, ele valida as estruturas instaladas e dispara a **Fase Zero de Alinhamento**.
 
 ---
 

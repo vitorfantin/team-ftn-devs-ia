@@ -43,27 +43,47 @@ Consulte a íntegra das regras no arquivo [`docs/protocolo_handoff.md`](file:///
 
 ---
 
-## 🛠️ Guia de Instalação na sua Aplicação
+## 🛠️ Guia de Instalação & Atualização na sua Aplicação
 
-As estruturas do ecossistema FTN DevsIA são instaladas **estritamente na raiz do projeto da sua aplicação**, mantendo o repositório matriz clonado (`team-ftn-devs-ia`) limpo e intacto.
+As estruturas do ecossistema FTN DevsIA são instaladas e atualizadas **estritamente na raiz do projeto da sua aplicação**, mantendo o repositório matriz clonado (`team-ftn-devs-ia`) limpo e intacto.
 
-### Opção A: A partir do Repositório Clonado (Local)
+### 🌟 1. Comando Padrão de Instalação (Sempre puxa o LATEST do GitHub)
+Abra o terminal na pasta da sua aplicação e execute o comando oficial:
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/vitorfantin/team-ftn-devs-ia/main/install-ftn.sh)"
+```
+*(O instalador baixa a versão mais recente diretamente do GitHub, detecta pastas existentes e copia os arquivos diretamente para dentro delas sem sobrescrever nada do seu projeto).*
+
+---
+
+### 🔄 2. Comando Padrão de Atualização (Para Projetos Antigos / Em Produção)
+Se você já possui um projeto com o FTN DevsIA instalado e quer atualizar para a versão mais recente com novos comandos, skills e esteiras, **sem perder nenhuma configuração**, token ou código da sua aplicação:
+
+#### Opção A: Direto via cURL (Mais Rápida de Qualquer Lugar):
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/vitorfantin/team-ftn-devs-ia/main/update-ftn.sh)"
+```
+
+#### Opção B: Terminal Local da Aplicação:
+```bash
+./update-ftn.sh
+```
+*(ou `./install-ftn.sh --update`)*
+
+> **🔒 Garantia de Preservação em Produção:**
+> A atualização atualiza todas as 25 skills (`.agents/skills/`), esteiras de CI/CD (`.github/workflows/`), protocolo de handoff e constituição, mas **PRESERVA INTACTOS**:
+> - Seus tokens, chaves de API e credenciais do ClickUp e Doop em `ftn.config.json`;
+> - Todo o código-fonte da aplicação (`src/`, `lib/`, `tests/`);
+> - Todas as features, especificações e casos de teste existentes (`.spec/features/` e `docs/testes/casos_de_teste/`).
+
+---
+
+### Opção Manual: A partir do Repositório Clonado (Local)
 Se você clonou o `team-ftn-devs-ia` na sua máquina, informe o caminho da sua aplicação:
 ```bash
 ./install-ftn.sh /caminho/absoluto/da/sua-aplicacao
 ```
-*(Se você executar apenas `./install-ftn.sh`, o script identificará que você está no repositório matriz e solicitará a pasta da sua aplicação).*
-
-> **ℹ️ Pastas já criadas no projeto (`.spec`, `docs`, `.github`, `.agents`):**
-> O instalador detecta automaticamente as pastas existentes e copia todos os arquivos da governança **diretamente para dentro dessas pastas**, mantendo todos os arquivos preexistentes da sua aplicação intactos.
-
----
-
-### Opção B: Diretamente na Raiz da sua Aplicação (Via cURL)
-Abra o terminal na pasta da sua aplicação existente e execute o instalador oficial:
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/vitorfantin/team-ftn-devs-ia/main/install-ftn.sh)"
-```
+*(Para atualizar uma aplicação existente localmente: `./install-ftn.sh /caminho/da/aplicacao --update`).*
 
 ---
 

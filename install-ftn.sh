@@ -35,9 +35,14 @@ PARAM_DOOP_MODE=""
 PARAM_DOOP_URL=""
 PARAM_DOOP_USER=""
 PARAM_DOOP_PASS=""
+PARAM_UPDATE=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        -u|--update)
+            PARAM_UPDATE=true
+            shift
+            ;;
         -f|--force|-y|--yes)
             # Mantido para retrocompatibilidade
             shift
@@ -86,6 +91,7 @@ while [[ $# -gt 0 ]]; do
             echo "Uso: ./install-ftn.sh [DIRETORIO_DA_APLICACAO] [OPCOES]"
             echo ""
             echo "Opções:"
+            echo "  -u, --update              Atualiza skills e esteiras mantendo configurações existentes"
             echo "  -a, --agent <nome>        Seleciona o agente (antigravity, cursor, codex, claude)"
             echo "  --with-clickup            Habilita o ClickUp para gestão visual de tarefas"
             echo "  --no-clickup              Desabilita o ClickUp (rastreamento local via Markdown)"
@@ -152,10 +158,38 @@ else
     echo -e "✅ Diretório limpo. Pastas serão criadas normalmente.\n"
 fi
 
+# Verificação inteligente de instalação pré-existente
+if [ -f "$TARGET_APP_DIR/ftn.config.json" ]; then
+    if [ "$PARAM_UPDATE" = "true" ]; then
+        echo -e "🔄 ${GREEN}[Modo de Atualização Ativado]:${NC} Detectada instalação existente do FTN DevsIA."
+        echo -e "🔒 ${BLUE}Suas configurações em ftn.config.json, código e features serão preservados intactos.${NC}\n"
+    else
+        echo -e "ℹ️  Detectamos uma instalação existente do FTN DevsIA neste projeto."
+        echo "Deseja:"
+        echo "1) Apenas atualizar skills e esteiras mantendo configurações existentes (Recomendado) [Padrão]"
+        echo "2) Reconfigurar ClickUp, Doop e ferramentas do zero"
+        read_input "Escolha uma opção (1 ou 2) [Padrão: 1]: " OPCAO_MODO_INSTALL
+        OPCAO_MODO_INSTALL="${OPCAO_MODO_INSTALL:-1}"
+        if [[ "$OPCAO_MODO_INSTALL" =~ ^(1|[Ss]|[Uu])$ ]]; then
+            PARAM_UPDATE=true
+            echo -e "🔄 ${GREEN}[Modo de Atualização Ativado]:${NC} Preservando configurações existentes.\n"
+        else
+            echo -e "⚙️  Reconfiguração do zero selecionada.\n"
+        fi
+    fi
+fi
+
 # ─────────────────────────────────────────────────────────────────────────────
 # FASE 2: SELEÇÃO DO AGENTE DE IA & CONFIGURAÇÃO DE CLICKUP E DOOP
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${GREEN}[2/3] Configurações de Stack & Ferramentas Opcionais:${NC}"
+if [ "$PARAM_UPDATE" = "true" ]; then
+    echo -e "${GREEN}[2/3] Preservando configurações preexistentes de ftn.config.json...${NC}\n"
+    if [ -z "$PARAM_AGENTE" ] && [ -f "$TARGET_APP_DIR/ftn.config.json" ]; then
+        PARAM_AGENTE=$(grep -o '"agent": *"[^"]*"' "$TARGET_APP_DIR/ftn.config.json" 2>/dev/null | cut -d'"' -f4)
+    fi
+    PARAM_AGENTE="${PARAM_AGENTE:-antigravity}"
+else
+    echo -e "${GREEN}[2/3] Configurações de Stack & Ferramentas Opcionais:${NC}"
 
 # 1. Seleção do Agente
 if [ -n "$PARAM_AGENTE" ]; then
@@ -275,6 +309,7 @@ if [ "$PARAM_DOOP" = "true" ]; then
         fi
     fi
 fi
+fi
 
 # ─────────────────────────────────────────────────────────────────────────────
 # FASE 3: INSTALAÇÃO DA ENGINE E CÓPIA DOS ARQUIVOS PARA DENTRO DAS PASTAS
@@ -287,21 +322,25 @@ cd "$TARGET_APP_DIR" || exit 1
 echo "📦 Executando npx @onovoprogramador/onp-spec para o agente '$PARAM_AGENTE'..."
 npx --yes @onovoprogramador/onp-spec init --agents "$PARAM_AGENTE" 2>/dev/null || true
 
-# Salva a configuração de governança FTN (ftn.config.json)
-echo "⚙️ Salvando configurações em ftn.config.json..."
-cat << EOF > "$TARGET_APP_DIR/ftn.config.json"
+# Salva ou atualiza a configuração de governança FTN (ftn.config.json)
+if [ "$PARAM_UPDATE" = "true" ] && [ -f "$TARGET_APP_DIR/ftn.config.json" ]; then
+    echo "🔒 Preservando configurações existentes e atualizando versão em ftn.config.json..."
+    sed -i.bak 's/"version": *"[^"]*"/"version": "1.1.6"/' "$TARGET_APP_DIR/ftn.config.json" 2>/dev/null && rm -f "$TARGET_APP_DIR/ftn.config.json.bak" 2>/dev/null || true
+else
+    echo "⚙️ Salvando configurações em ftn.config.json..."
+    cat << EOF > "$TARGET_APP_DIR/ftn.config.json"
 {
-  "version": "1.1.1",
+  "version": "1.1.6",
   "agent": "$PARAM_AGENTE",
   "clickup": {
-    "enabled": $PARAM_CLICKUP,
+    "enabled": ${PARAM_CLICKUP:-false},
     "apiToken": "",
     "teamId": "",
     "spaceId": "",
     "listId": ""
   },
   "doop": {
-    "enabled": $PARAM_DOOP,
+    "enabled": ${PARAM_DOOP:-true},
     "mode": "${PARAM_DOOP_MODE:-local}",
     "url": "${PARAM_DOOP_URL:-http://localhost:3000}",
     "username": "${PARAM_DOOP_USER:-}",
@@ -315,6 +354,7 @@ cat << EOF > "$TARGET_APP_DIR/ftn.config.json"
   }
 }
 EOF
+fi
 
 # Migra .agent legado para .agents na aplicacao se existir
 if [ -d "$TARGET_APP_DIR/.agent" ]; then
@@ -380,47 +420,64 @@ echo "🛠️ Copiando utilitários para dentro de scripts/..."
 cp -rf "$SOURCE_FILES/scripts/"* "$TARGET_APP_DIR/scripts/" 2>/dev/null || true
 chmod +x "$TARGET_APP_DIR/scripts/"*.sh "$TARGET_APP_DIR/scripts/"*.js 2>/dev/null || true
 
+# Copia assistentes de execução local na raiz da aplicação
+cp -f "$SOURCE_FILES/update-ftn.sh" "$TARGET_APP_DIR/update-ftn.sh" 2>/dev/null || true
+cp -f "$SOURCE_FILES/install-ftn.sh" "$TARGET_APP_DIR/install-ftn.sh" 2>/dev/null || true
+chmod +x "$TARGET_APP_DIR/update-ftn.sh" "$TARGET_APP_DIR/install-ftn.sh" 2>/dev/null || true
+
 # Limpa diretório temporário se foi criado (após todas as cópias concluídas)
 if [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ]; then
     rm -rf "$TEMP_DIR"
 fi
 
-echo -e "\n${GREEN}✨ [FTN DevsIA] Todas as estruturas foram configuradas com sucesso em:${NC}"
-echo -e "👉 ${YELLOW}$TARGET_APP_DIR${NC}"
-echo -e "⚙️  Configuração salva em: ${BLUE}$TARGET_APP_DIR/ftn.config.json${NC}\n"
+if [ "$PARAM_UPDATE" = "true" ]; then
+    echo -e "\n🎉 ${GREEN}✨ [FTN DevsIA] Atualização concluída com sucesso! (v1.1.6)${NC}"
+    echo -e "📁 Aplicação: ${YELLOW}$TARGET_APP_DIR${NC}"
+    echo -e "✅ Todas as 25 skills atualizadas em: ${BLUE}$TARGET_APP_DIR/.agents/skills/${NC}"
+    echo -e "✅ Esteiras modulares de CI/CD atualizadas em: ${BLUE}$TARGET_APP_DIR/.github/workflows/${NC}"
+    echo -e "✅ Protocolo de handoff e tutoriais atualizados em: ${BLUE}$TARGET_APP_DIR/docs/${NC}"
+    echo -e "✅ Constituição auditável atualizada em: ${BLUE}$TARGET_APP_DIR/.spec/constituicao.md${NC}"
+    echo -e "🔒 ${GREEN}Configurações de ftn.config.json, código e features existentes foram preservados intactos!${NC}"
+    echo -e "\n💡 Para atualizar no futuro direto do terminal da aplicação, basta executar:"
+    echo -e "   👉 ${YELLOW}./update-ftn.sh${NC}"
+else
+    echo -e "\n${GREEN}✨ [FTN DevsIA] Todas as estruturas foram configuradas com sucesso em:${NC}"
+    echo -e "👉 ${YELLOW}$TARGET_APP_DIR${NC}"
+    echo -e "⚙️  Configuração salva em: ${BLUE}$TARGET_APP_DIR/ftn.config.json${NC}\n"
 
-if [ "$PARAM_DOOP" = "true" ]; then
-    if [ "$PARAM_DOOP_MODE" = "local" ]; then
-        echo -e "🐳 ${BLUE}[Doop Local]:${NC} Para subir o container do Doop, execute:"
-        echo -e "   ${YELLOW}docker compose -f docker/doop/docker-compose.yml up -d${NC}"
-    else
-        echo -e "🌐 ${BLUE}[Doop Remoto]:${NC} Apontado para ${YELLOW}$PARAM_DOOP_URL${NC}"
+    if [ "$PARAM_DOOP" = "true" ]; then
+        if [ "$PARAM_DOOP_MODE" = "local" ]; then
+            echo -e "🐳 ${BLUE}[Doop Local]:${NC} Para subir o container do Doop, execute:"
+            echo -e "   ${YELLOW}docker compose -f docker/doop/docker-compose.yml up -d${NC}"
+        else
+            echo -e "🌐 ${BLUE}[Doop Remoto]:${NC} Apontado para ${YELLOW}$PARAM_DOOP_URL${NC}"
+        fi
+
+        if [ -z "$PARAM_DOOP_USER" ]; then
+            echo -e "📝 ${YELLOW}[Credenciais do Doop]:${NC} Você optou por configurar depois. Quando desejar, edite:"
+            echo -e "   👉 ${BLUE}$TARGET_APP_DIR/ftn.config.json${NC} (\"doop.username\" e \"doop.password\")"
+            [ "$PARAM_DOOP_MODE" = "local" ] && echo -e "   (ou em: $TARGET_APP_DIR/docker/doop/.env)\n"
+        fi
     fi
 
-    if [ -z "$PARAM_DOOP_USER" ]; then
-        echo -e "📝 ${YELLOW}[Credenciais do Doop]:${NC} Você optou por configurar depois. Quando desejar, edite:"
-        echo -e "   👉 ${BLUE}$TARGET_APP_DIR/ftn.config.json${NC} (\"doop.username\" e \"doop.password\")"
-        [ "$PARAM_DOOP_MODE" = "local" ] && echo -e "   (ou em: $TARGET_APP_DIR/docker/doop/.env)\n"
-    fi
+    echo -e "\nComandos disponíveis no chat da sua IA ($PARAM_AGENTE):"
+    echo -e "  👥 ${YELLOW}/reuniao${NC}          : Convoca a mesa redonda com todo o time para planejar e alinhar nova demanda"
+    echo -e "  🚀 ${YELLOW}/iniciar-time-ftn${NC} : Inicializa a governança e o ciclo de desenvolvimento da aplicação"
+    echo -e "\nAtalhos rápidos para chamar cada especialista individualmente:"
+    echo -e "  🎙️  ${YELLOW}/pm${NC}      : Product Manager (regras de negócio, escopo, US e AC)"
+    echo -e "  🏛️  ${YELLOW}/tl${NC}      : Tech Lead (arquitetura, contratos de API, Postgres 18.6)"
+    echo -e "  🎨 ${YELLOW}/uiux${NC}    : UI/UX Designer (protótipos no Doop Canvas e WCAG)"
+    echo -e "  ⚙️  ${YELLOW}/back${NC}    : Backend Dev (DER vivo, APIs seguras, TDD ≥ 90%)"
+    echo -e "  💻 ${YELLOW}/front${NC}   : Frontend Dev (telas web responsivas, componentes, TDD ≥ 90%)"
+    echo -e "  📱 ${YELLOW}/mobile${NC}  : Mobile Dev (Flutter, telas móveis, TDD ≥ 90%)"
+    echo -e "  🧪 ${YELLOW}/qa${NC}      : QA Tester (casos de teste, E2E via qa-id, carga K6)"
+    echo -e "  🚀 ${YELLOW}/devops${NC}  : DevOps (pipelines CI/CD, Swarm, Traefik, Portão Humano)"
+    echo -e "  🛡️  ${YELLOW}/secops${NC}  : SecOps (auditoria SAST, vazamento de segredos, LGPD)"
+
+    echo -e "\nComandos de Esteira & Operações:"
+    echo -e "  📊 ${YELLOW}/status${NC}    : Painel visual de andamento da esteira"
+    echo -e "  ✅ ${YELLOW}/checklist${NC} : Auditoria do Checklist Mestre e onp-spec audit --ci"
+    echo -e "  🚦 ${YELLOW}/aprovar${NC}   : Destrava Doop e autoriza o merge no Portão Humano"
+    echo -e "  🐛 ${YELLOW}/bug${NC}       : Correção rápida de defeito com TDD Red-Green"
+    echo -e "  ❓ ${YELLOW}/ajuda${NC}     : Exibe todos os comandos e atalhos disponíveis"
 fi
-
-echo -e "\nComandos disponíveis no chat da sua IA ($PARAM_AGENTE):"
-echo -e "  👥 ${YELLOW}/reuniao${NC}          : Convoca a mesa redonda com todo o time para planejar e alinhar nova demanda"
-echo -e "  🚀 ${YELLOW}/iniciar-time-ftn${NC} : Inicializa a governança e o ciclo de desenvolvimento da aplicação"
-echo -e "\nAtalhos rápidos para chamar cada especialista individualmente:"
-echo -e "  🎙️  ${YELLOW}/pm${NC}      : Product Manager (regras de negócio, escopo, US e AC)"
-echo -e "  🏛️  ${YELLOW}/tl${NC}      : Tech Lead (arquitetura, contratos de API, Postgres 18.6)"
-echo -e "  🎨 ${YELLOW}/uiux${NC}    : UI/UX Designer (protótipos no Doop Canvas e WCAG)"
-echo -e "  ⚙️  ${YELLOW}/back${NC}    : Backend Dev (DER vivo, APIs seguras, TDD ≥ 90%)"
-echo -e "  💻 ${YELLOW}/front${NC}   : Frontend Dev (telas web responsivas, componentes, TDD ≥ 90%)"
-echo -e "  📱 ${YELLOW}/mobile${NC}  : Mobile Dev (Flutter, telas móveis, TDD ≥ 90%)"
-echo -e "  🧪 ${YELLOW}/qa${NC}      : QA Tester (casos de teste, E2E via qa-id, carga K6)"
-echo -e "  🚀 ${YELLOW}/devops${NC}  : DevOps (pipelines CI/CD, Swarm, Traefik, Portão Humano)"
-echo -e "  🛡️  ${YELLOW}/secops${NC}  : SecOps (auditoria SAST, vazamento de segredos, LGPD)"
-
-echo -e "\nComandos de Esteira & Operações:"
-echo -e "  📊 ${YELLOW}/status${NC}    : Painel visual de andamento da esteira"
-echo -e "  ✅ ${YELLOW}/checklist${NC} : Auditoria do Checklist Mestre e onp-spec audit --ci"
-echo -e "  🚦 ${YELLOW}/aprovar${NC}   : Destrava Doop e autoriza o merge no Portão Humano"
-echo -e "  🐛 ${YELLOW}/bug${NC}       : Correção rápida de defeito com TDD Red-Green"
-echo -e "  ❓ ${YELLOW}/ajuda${NC}     : Exibe todos os comandos e atalhos disponíveis"

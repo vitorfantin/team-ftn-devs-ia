@@ -6,7 +6,7 @@
 O objetivo principal deste ecossistema é padronizar e blindar o ciclo de desenvolvimento de software do time **FTN DevsIA** (tanto para plataformas Web quanto para aplicativos em Flutter), operando com o nível de maturidade de grandes empresas de tecnologia do mercado. 
 
 Este ecossistema garante de forma intransponível:
-* **Isolamento de Papéis & Protocolo de Handoff:** 8 agentes de IA especialistas que atuam estritamente em suas funções de alçada, com passagem formal de bastão sem interferência mútua.
+* **Isolamento de Papéis & Protocolo de Handoff:** 9 agentes de IA especialistas que atuam estritamente em suas funções de alçada, com passagem formal de bastão sem interferência mútua.
 * **Gestão e Rastreabilidade Centralizada no ClickUp:** 100% das demandas passam pelo ClickUp (Features, quebra de subtarefas de engenharia, registro de Casos de Teste planejados e automatizados, e documentações sincronizadas).
 * **Pirâmide de Testes Completa (Cobertura Total):** Implementação obrigatória de todos os níveis da pirâmide de testes (Unitários, Componentes/Widgets, Integração com Postgres 18.6, Contratos de API e E2E via `qa-id`), com TDD e cobertura mínima de 90%.
 * **Automação de QA Inquebrável:** Proibição absoluta de caminhos XPath, forçando o planejamento prévio de Casos de Teste e a seleção puramente por atributos `qa-id` / `data-qa` em cenários bons, ruins e anti-crash (`btn-error-retry`).
@@ -107,6 +107,84 @@ Abra o seu editor na pasta da **sua aplicação** e utilize os comandos mestres 
 
 ---
 
+## 🚀 Como Usar no Dia a Dia (Guia Prático Passo a Passo)
+
+### 1️⃣ Instalação na Raiz da sua Aplicação
+Abra o terminal na pasta da sua aplicação e execute:
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/vitorfantin/team-ftn-devs-ia/main/install-ftn.sh)"
+```
+*(O instalador perguntará interativamente se deseja ativar ClickUp, Doop local ou remoto e as credenciais, preservando todas as pastas já existentes no seu projeto).*
+
+---
+
+### 2️⃣ Inicialização da Governança
+No chat da IA dentro do seu editor, digite:
+```text
+/iniciar-time-ftn
+```
+O `@ProductManager` valida a raiz, lê o `ftn.config.json` e configura a `.spec/constituicao.md`.
+
+---
+
+### 3️⃣ Iniciar uma Nova Feature: Mesa Redonda (`/reuniao`)
+Para começar qualquer funcionalidade ou projeto novo, digite no chat:
+```text
+/reuniao Quero criar um fluxo de pagamento via Pix com notificação em tempo real
+```
+1. **Sabatina dos Especialistas:** O time (@pm, @tl, @uiux, @back, @front, @qa, @devops, @secops) faz de 1 a 2 perguntas pontuais para tirar dúvidas de negócio, arquitetura, banco e caminhos tristes.
+2. **Spec ONP Gerada:** Após suas respostas, o `@pm` gera a spec no padrão ONP (`.spec/features/[feature]/spec.md`) congelando histórias (`US`), critérios de aceite (`AC`), perguntas (`Q-xxx`), suposições (`ASM-xxx`) e a **Tabela Mestra de `qa-id`**.
+3. **Tarefas no ClickUp ou Markdown:** Se o ClickUp estiver ativo, cria o card e quebra em subtarefas técnicas ([TL], [UI/UX], [BACK], etc.); se inativo, gerencia em `task.md`.
+
+---
+
+### 4️⃣ Validação do Protótipo no Doop Canvas (`/aprovar`)
+1. O `@uiux` desenha as telas no **Doop Canvas** (`http://localhost:3000` ou IP remoto) com os 5 estados e o botão anti-crash (`qa-id="btn-error-retry"`).
+2. O designer posta o link no chat para você validar visualmente.
+3. **Trava Visual:** Front e Mobile ficam bloqueados até você validar. Digite no chat:
+   ```text
+   /aprovar
+   ```
+   *(Frontend e Mobile são liberados imediatamente).*
+
+---
+
+### 5️⃣ Desenvolvimento Especializado & Acompanhamento
+Cada especialista executa sua parte respeitando o [Protocolo de Handoff](docs/protocolo_handoff.md):
+* **Quer saber em que pé está a feature?** Digite `/status`.
+* **Quer ver o modelo do banco de dados?** Digite `/der` (exibe o diagrama ER vivo em Mermaid).
+* **Quer ver a tela ou link do Doop?** Digite `/doop`.
+* **Quer conversar com um especialista específico?** Digite `@qa`, `@tl`, `@back`, `@front`, `@uiux`, etc.
+* **Encontrou um defeito durante o desenvolvimento?** Digite `/bug` (cria teste que falha primeiro e corrige com TDD).
+* **Teve algum impedimento externo?** Digite `/bloqueio` (registra dúvida na spec e pausa a esteira).
+
+---
+
+### 6️⃣ Auditoria de Qualidade & Abertura de PR (`/checklist`)
+Antes do merge, o time audita a conformidade completa:
+```text
+/checklist
+```
+* Verifica TDD ≥ 90%, zero XPath, DER vivo atualizado, 100% `qa-id`s, SAST, e executa mecanicamente `onp-spec audit --ci` (exit code 0).
+* O desenvolvedor abre o Pull Request para `develop`/`staging` com o Checklist Mestre no corpo do PR.
+* O GitHub Actions dispara a esteira de CI (`ci-staging.yml`).
+
+---
+
+### 7️⃣ 🚦 Portão Humano (Human Gate) & Deploy (`/aprovar`)
+1. Quando a esteira de CI do GitHub Actions fica **100% verde (✅)**:
+   * **É proibido fazer merge automático.**
+   * O time de IA emite o alerta no chat com o link do PR:
+     > *"🔔 [Portão Humano]: CI passou 100%! Analise o PR em [LINK] e responda `/aprovar` para autorizar o merge."*
+2. Você clica no link do PR, analisa o código e digita no chat:
+   ```text
+   /aprovar
+   ```
+3. O `@devops` realiza o merge e o deploy automático no **Docker Swarm com Traefik (SSL + Basic Auth)**.
+4. O `@secops` roda a auditoria final (`security-scan.yml`) e o `@pm` gera as Release Notes via `/resumo` para enviar ao cliente final!
+
+---
+
 ## ⚙️ Configuração Modular: ClickUp e Doop Opcionais (`ftn.config.json`)
 
 O instalador `install-ftn.sh` pergunta interativamente as preferências do seu projeto e salva em `ftn.config.json`:
@@ -127,18 +205,32 @@ O instalador `install-ftn.sh` pergunta interativamente as preferências do seu p
 raiz-do-seu-projeto/
 ├── ftn.config.json                     # ⚙️ Configurações ativas do projeto (ClickUp, Doop e Engine Spec)
 ├── .agents/
-│   └── skills/                         # 👥 As Mentes Especialistas do Time FTN
-│       ├── reuniao.md                  # 👥 Comando /reuniao (Mesa redonda com todo o time)
-│       ├── iniciar_time_ftn.md         # 🚀 Comando /iniciar-time-ftn (Inicialização do projeto)
-│       ├── pm.md (1_ProductManager)    # 🎙️ Comando /pm (Product Manager)
-│       ├── tl.md (2_TechLead)          # 🏛️ Comando /tl (Tech Lead)
-│       ├── uiux.md (3_UIUXDesigner)    # 🎨 Comando /uiux (UI/UX Designer)
-│       ├── front.md (4a_FrontendDev)   # 💻 Comando /front (Frontend Dev)
-│       ├── mobile.md (4b_MobileDev)    # 📱 Comando /mobile (Mobile Dev)
-│       ├── back.md (5_BackendDev)      # ⚙️ Comando /back (Backend Dev)
-│       ├── qa.md (6_QATester)          # 🧪 Comando /qa (QA Tester)
-│       ├── devops.md (7_DevOps)        # 🚀 Comando /devops (DevOps)
-│       └── secops.md (8_SecOps)        # 🛡️ Comando /secops (SecOps)
+│   └── skills/                         # 👥 Mentes Especialistas e Comandos FTN
+│       ├── reuniao.md                  # 👥 /reuniao (Mesa redonda com todo o time)
+│       ├── iniciar_time_ftn.md         # 🚀 /iniciar-time-ftn (Inicialização do projeto)
+│       ├── pm.md (1_ProductManager)    # 🎙️ @pm ou /pm (Product Manager)
+│       ├── tl.md (2_TechLead)          # 🏛️ @tl ou /tl (Tech Lead)
+│       ├── uiux.md (3_UIUXDesigner)    # 🎨 @uiux ou /uiux (UI/UX Designer)
+│       ├── front.md (4a_FrontendDev)   # 💻 @front ou /front (Frontend Dev)
+│       ├── mobile.md (4b_MobileDev)    # 📱 @mobile ou /mobile (Mobile Dev)
+│       ├── back.md (5_BackendDev)      # ⚙️ @back ou /back (Backend Dev)
+│       ├── qa.md (6_QATester)          # 🧪 @qa ou /qa (QA Tester)
+│       ├── devops.md (7_DevOps)        # 🚀 @devops ou /devops (DevOps)
+│       ├── secops.md (8_SecOps)        # 🛡️ @secops ou /secops (SecOps)
+│       ├── status.md                   # 📊 /status (Painel de andamento da esteira)
+│       ├── checklist.md                # ✅ /checklist (Checklist Mestre e onp-spec audit)
+│       ├── aprovar.md                  # 🚦 /aprovar (Destrava Doop e Portão Humano)
+│       ├── handoff.md                  # 🔄 /handoff (Passagem formal de bastão)
+│       ├── bloqueio.md                 # 🛑 /bloqueio (Sinaliza impedimento)
+│       ├── bug.md                      # 🐛 /bug (Correção rápida TDD Red-Green)
+│       ├── review.md                   # 🧐 /review (Code review Tech Lead + SecOps)
+│       ├── testes.md                   # 🧪 /testes (Raio-X da pirâmide e cobertura)
+│       ├── der.md                      # 🗄️ /der (Diagrama ER vivo em Mermaid)
+│       ├── doop.md                     # 🎨 /doop (Canvas visual e telas)
+│       ├── deploy.md                   # 🚀 /deploy (Publicação assistida em Staging)
+│       ├── rollback.md                 # 🚨 /rollback (Reversão emergencial Swarm)
+│       ├── resumo.md                   # 📝 /resumo (Release notes para o cliente)
+│       └── ajuda.md                    # ❓ /ajuda (Cola rápida de todos os atalhos)
 │
 ├── .github/
 │   └── workflows/                      # ⚙️ Esteiras Modulares de CI/CD (Copiadas para os projetos destino)

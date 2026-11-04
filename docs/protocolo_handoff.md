@@ -20,15 +20,15 @@ Este documento define o contrato inegociável de transição de tarefas entre os
 
 ## 📋 Matriz de Contrato de Handoff
 
-| Fase | Agente Responsável | Artefato de Entrada | Ação de Gestão (ClickUp / Markdown) | Artefato de Saída | Próximo Agente |
+| Fase | Agente Responsável (Comando) | Artefato de Entrada | Ação de Gestão (ClickUp / Markdown) | Artefato de Saída | Próximo Agente |
 | :---: | :--- | :--- | :--- | :--- | :--- |
-| **0** | `@ProductManager` | Solicitação do cliente (`/reuniao` ou `/iniciar-time-ftn`) | Cria Feature (ClickUp ou `task.md`), anexa links da spec e quebra subtarefas técnicas ([TL], [UI/UX], [BACK], [FRONT/MOB]). | `.spec/constituicao.md`<br>`.spec/features/[feature]/spec.md` | `@TechLead` |
-| **1** | `@TechLead` | `.spec/features/[feature]/spec.md` | Assume card [TL], anexa arquitetura técnica, contratos de API e metas de stress. | `.spec/arquitetura.md` | `@UIUXDesigner` & `@BackendDev` |
-| **2** | `@UIUXDesigner` | `.spec/features/[feature]/spec.md`<br>`.spec/arquitetura.md` | Assume card [UI/UX]. Desenha telas (no Doop se ativo ou em Markdown), mapeia 5 estados e fallback anti-crash. Apresenta ao cliente para aprovação. | `docs/design/design_system.md`<br>Doop Canvas URL (se ativo) | `@FrontendDev` ou `@MobileDev`<br>*(Trava Rígida: Front/Mobile bloqueados até UI/UX aprovada pelo cliente)* |
-| **3** | `@BackendDev`<br>`@FrontendDev`<br>`@MobileDev` | Specs de Produto, Arquitetura, Design e DER | Assumem cards. Backend atualiza DER vivo (`docs/banco_de_dados/diagrama_er.md`), devs codificam TDD ≥90%, abrem PR para `develop`. | Pull Request aberto para `develop`<br>`docs/banco_de_dados/diagrama_er.md` atualizado | `@QATester` |
-| **4** | `@QATester` | PR aberto + Tabela de `qa-id` da spec | 1. Registra Casos de Teste (`docs/testes/casos_de_teste/`).<br>2. Automatiza E2E sem XPath via `qa-id`, roda testes e anexa o Checklist FTN. | `docs/testes/casos_de_teste/[feature].md`<br>Suíte E2E automatizada e PR aprovado | `@DevOps` (se aprovado) |
-| **5** | `@DevOps` | CI aprovado em `develop` | Valida esteira de CI. **Aciona o Portão Humano (avisa o usuário para analisar PR)**. Após aprovação humana do merge, publica em Staging. | Deploy ativo em staging | `@SecOps` |
-| **6** | `@SecOps` | Deploy ativo e código mesclado | Executa esteira dedicada `security-scan.yml` (nos projetos de destino), anexa relatório de auditoria e homologa para produção. | `docs/auditoria/security-report.md` | Ciclo concluído |
+| **0** | `@ProductManager` (`/pm`) | Solicitação do cliente (`/reuniao` ou `/iniciar-time-ftn`) | Cria Feature (ClickUp ou `task.md`), anexa links da spec e quebra subtarefas técnicas ([TL], [UI/UX], [BACK], [FRONT/MOB]). | `.spec/constituicao.md`<br>`.spec/features/[feature]/spec.md` | `@TechLead` (`/tl`) |
+| **1** | `@TechLead` (`/tl`) | `.spec/features/[feature]/spec.md` | Assume card [TL], anexa arquitetura técnica, contratos de API e metas de stress. | `.spec/arquitetura.md` | `@UIUXDesigner` & `@BackendDev` |
+| **2** | `@UIUXDesigner` (`/uiux`) | `.spec/features/[feature]/spec.md`<br>`.spec/arquitetura.md` | Assume card [UI/UX]. Desenha telas (no Doop se ativo ou em Markdown), mapeia 5 estados e fallback anti-crash. Apresenta ao cliente para aprovação. | `docs/design/design_system.md`<br>Doop Canvas URL (se ativo) | `@FrontendDev` ou `@MobileDev`<br>*(Trava Rígida: Front/Mobile bloqueados até UI/UX aprovada pelo cliente)* |
+| **3** | `@BackendDev` (`/back`)<br>`@FrontendDev` (`/front`)<br>`@MobileDev` (`/mobile`) | Specs de Produto, Arquitetura, Design e DER | Assumem cards. Backend atualiza DER vivo (`docs/banco_de_dados/diagrama_er.md`), devs codificam TDD ≥90%, abrem PR para `develop`. | Pull Request aberto para `develop`<br>`docs/banco_de_dados/diagrama_er.md` atualizado | `@QATester` (`/qa`) |
+| **4** | `@QATester` (`/qa`) | PR aberto + Tabela de `qa-id` da spec | 1. Registra Casos de Teste (`docs/testes/casos_de_teste/`).<br>2. Automatiza E2E sem XPath via `qa-id`, roda testes e anexa o Checklist FTN. | `docs/testes/casos_de_teste/[feature].md`<br>Suíte E2E automatizada e PR aprovado | `@DevOps` (se aprovado) |
+| **5** | `@DevOps` (`/devops`) | CI aprovado em `develop` | Valida esteira de CI. **Aciona o Portão Humano (avisa o usuário para analisar PR)**. Após aprovação humana do merge, publica em Staging. | Deploy ativo em staging | `@SecOps` (`/secops`) |
+| **6** | `@SecOps` (`/secops`) | Deploy ativo e código mesclado | Executa esteira dedicada `security-scan.yml` (nos projetos de destino), anexa relatório de auditoria e homologa para produção. | `docs/auditoria/security-report.md` | Ciclo concluído |
 
 ---
 

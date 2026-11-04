@@ -70,18 +70,22 @@ Abra o terminal na pasta da sua aplicação existente e execute o instalador ofi
 ### 3. Comandos de Ativação no Chat da IA
 Abra o seu editor na pasta da **sua aplicação** e utilize os comandos mestres conforme a necessidade:
 
-#### 💬 `/reuniao` (Kickoff de Demanda com o Cliente)
-Use este comando (ou o alias `/reuniao-time-ftn`) para convocar **todos os especialistas do time** para uma mesa redonda:
-* O `@ProductManager` abre a reunião e ouve o que o cliente/usuário deseja construir;
-* Cada especialista (@TechLead, @UIUXDesigner, @BackendDev, @FrontendDev, @MobileDev, @QATester, @DevOps, @SecOps) faz perguntas pontuais para entender profundamente as regras, telas, dados e riscos;
-* Com tudo alinhado e homologado pelo cliente, o PM gera a spec no padrão ONP (`npx onp-spec new <feature>`) com histórias, critérios de aceite e tabela de `qa-id`s;
-* O `@UIUXDesigner` desenha as telas no **Doop Canvas** (local ou remoto) e publica o link no chat para **aprovação visual do cliente** (trava inegociável antes de Front/Mobile);
-* Cada especialista executa sua parte com TDD ≥90% e DER vivo;
-* Antes do merge, é auditado o **Checklist Mestre de Conformidade FTN** (Qualidade e Segurança) e aberto o PR;
-* Quando o CI passa com 100% de sucesso, a **Trava do Portão Humano** avisa o usuário no chat com o link do PR para análise antes do merge!
+#### 👥 Comandos de Orquestração Geral:
+* **`/reuniao`** *(aliases: `/reuniao-time-ftn`, `/kickoff-ftn`)*: Convoca **todos os especialistas do time** para a mesa redonda de alinhamento. O `@ProductManager` ouve a demanda, cada membro faz perguntas pontuais, a spec ONP é gerada, o protótipo no Doop é submetido à sua aprovação visual, e a esteira de desenvolvimento é disparada com Checklist Mestre e Portão Humano pré-merge.
+* **`/iniciar-time-ftn`**: Inicialização da governança na raiz da aplicação, configuração do [ftn.config.json](file:///Users/vitorfantin/.gemini/antigravity/worktrees/team-ftn-devs-ia/analise_designacao_tarefas_especificas/ftn.config.json) e validação de estruturas.
 
-#### 🚀 `/iniciar-time-ftn` (Inicialização da Governança do Projeto)
-Use este comando na primeira vez para validar as estruturas instaladas na aplicação, configurar a `.spec/constituicao.md` e alinhar escopo de legado.
+#### ⚡ Atalhos Rápidos para Chamar Cada Especialista Individualmente:
+| Comando | Especialista | Papel e Alçada |
+| :--- | :--- | :--- |
+| **`/pm`** | `@ProductManager` | Regras de negócio, escopo de features, histórias (`US`), critérios de aceite (`AC`) e congelamento da Tabela de `qa-id` |
+| **`/tl`** | `@TechLead` | Arquitetura técnica, modelagem `postgres:18.6`, contratos de API e metas de stress |
+| **`/uiux`** | `@UIUXDesigner` | Protótipos visuais no Doop Canvas (Local/Rede), tokens, 5 estados e acessibilidade WCAG |
+| **`/back`** | `@BackendDev` | DER vivo (`docs/banco_de_dados/diagrama_er.md`), migrations, APIs seguras OWASP e TDD ≥ 90% |
+| **`/front`** | `@FrontendDev` | Interface Web responsiva, componentes atômicos, injeção dos `qa-id`s e TDD ≥ 90% |
+| **`/mobile`** | `@MobileDev` | Aplicativo Flutter, secure storage, consumo de APIs e TDD ≥ 90% |
+| **`/qa`** | `@QATester` | Planejamento de Casos de Teste, automação E2E sem XPath (`qa-id`), pirâmide de testes e stress K6 |
+| **`/devops`** | `@DevOps` | Esteiras de CI/CD, Swarm, Traefik (SSL + Basic Auth) e trava do Portão Humano pré-merge |
+| **`/secops`** | `@SecOps` | Auditoria SAST, varredura de segredos (Zero-Secret Leak), higiene do Git e compliance LGPD |
 
 ---
 
@@ -106,18 +110,17 @@ raiz-do-seu-projeto/
 ├── ftn.config.json                     # ⚙️ Configurações ativas do projeto (ClickUp, Doop e Engine Spec)
 ├── .agents/
 │   └── skills/                         # 👥 As Mentes Especialistas do Time FTN
-│       ├── reuniao.md                  # 💬 Comando /reuniao (Mesa redonda e alinhamento com cliente)
-│       ├── reuniao_time_ftn.md         # 💬 Alias do comando /reuniao
+│       ├── reuniao.md                  # 👥 Comando /reuniao (Mesa redonda com todo o time)
 │       ├── iniciar_time_ftn.md         # 🚀 Comando /iniciar-time-ftn (Inicialização do projeto)
-│       ├── 1_ProductManager.md         # Fase Zero, Escopo, Negócio e Tabela Mestra de qa-id
-│       ├── 2_TechLead.md               # Arquitetura, Postgres 18.6, Pirâmide de testes e SOLID
-│       ├── 3_UIUXDesigner.md           # Design System (Doop ou Markdown), WCAG e Fallback Anti-Crash
-│       ├── 4a_FrontendDev.md           # Desenvolvimento Web, TDD 90% e Injeção de qa-ids
-│       ├── 4b_MobileDev.md             # Desenvolvimento Flutter, Secure Storage e Performance
-│       ├── 5_BackendDev.md             # APIs seguras, Postgres 18.6, DER vivo e Migrations
-│       ├── 6_QATester.md               # Casos de teste prévios, Automações E2E sem XPath e Gatekeeper
-│       ├── 7_DevOps.md                 # Docker Swarm, Traefik, Basic Auth e CI/CD Modular
-│       └── 8_SecOps.md                 # Auditoria SAST/LGPD, .gitignore e Zero-Secret Leak
+│       ├── pm.md (1_ProductManager)    # 🎙️ Comando /pm (Product Manager)
+│       ├── tl.md (2_TechLead)          # 🏛️ Comando /tl (Tech Lead)
+│       ├── uiux.md (3_UIUXDesigner)    # 🎨 Comando /uiux (UI/UX Designer)
+│       ├── front.md (4a_FrontendDev)   # 💻 Comando /front (Frontend Dev)
+│       ├── mobile.md (4b_MobileDev)    # 📱 Comando /mobile (Mobile Dev)
+│       ├── back.md (5_BackendDev)      # ⚙️ Comando /back (Backend Dev)
+│       ├── qa.md (6_QATester)          # 🧪 Comando /qa (QA Tester)
+│       ├── devops.md (7_DevOps)        # 🚀 Comando /devops (DevOps)
+│       └── secops.md (8_SecOps)        # 🛡️ Comando /secops (SecOps)
 │
 ├── .github/
 │   └── workflows/                      # ⚙️ Esteiras Modulares de CI/CD (Copiadas para os projetos destino)

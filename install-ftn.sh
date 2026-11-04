@@ -351,11 +351,10 @@ fi
 
 # Copia estruturas essenciais diretamente para dentro das pastas na aplicação
 echo "📋 Copiando perfis especialistas e skills para dentro de .agents/skills/..."
+cp -rf "$SOURCE_FILES/.agents/skills/"* "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 cp -f "$SOURCE_FILES"/[0-9]*.md "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 cp -f "$SOURCE_FILES/.agents/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || \
 cp -f "$SOURCE_FILES/.agent/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
-cp -f "$SOURCE_FILES/.agents/skills/reuniao.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
-cp -f "$SOURCE_FILES/.agents/skills/reuniao_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 
 echo "⚙️ Copiando esteiras modulares de CI/CD para dentro de .github/workflows/..."
 cp -rf "$SOURCE_FILES/.github/workflows/"* "$TARGET_APP_DIR/.github/workflows/" 2>/dev/null || true
@@ -406,5 +405,15 @@ if [ "$PARAM_DOOP" = "true" ]; then
 fi
 
 echo -e "\nComandos disponíveis no chat da sua IA ($PARAM_AGENTE):"
-echo -e "  💬 ${YELLOW}/reuniao${NC} (ou ${YELLOW}/reuniao-time-ftn${NC}) : Convoca a mesa com todos os especialistas para ouvir a demanda do cliente e alinhar dúvidas"
+echo -e "  👥 ${YELLOW}/reuniao${NC}          : Convoca a mesa redonda com todo o time para planejar e alinhar nova demanda"
 echo -e "  🚀 ${YELLOW}/iniciar-time-ftn${NC} : Inicializa a governança e o ciclo de desenvolvimento da aplicação"
+echo -e "\nAtalhos rápidos para chamar cada especialista individualmente:"
+echo -e "  🎙️  ${YELLOW}/pm${NC}      : Product Manager (regras de negócio, escopo, US e AC)"
+echo -e "  🏛️  ${YELLOW}/tl${NC}      : Tech Lead (arquitetura, contratos de API, Postgres 18.6)"
+echo -e "  🎨 ${YELLOW}/uiux${NC}    : UI/UX Designer (protótipos no Doop Canvas e WCAG)"
+echo -e "  ⚙️  ${YELLOW}/back${NC}    : Backend Dev (DER vivo, APIs seguras, TDD ≥ 90%)"
+echo -e "  💻 ${YELLOW}/front${NC}   : Frontend Dev (telas web responsivas, componentes, TDD ≥ 90%)"
+echo -e "  📱 ${YELLOW}/mobile${NC}  : Mobile Dev (Flutter, telas móveis, TDD ≥ 90%)"
+echo -e "  🧪 ${YELLOW}/qa${NC}      : QA Tester (casos de teste, E2E via qa-id, carga K6)"
+echo -e "  🚀 ${YELLOW}/devops${NC}  : DevOps (pipelines CI/CD, Swarm, Traefik, Portão Humano)"
+echo -e "  🛡️  ${YELLOW}/secops${NC}  : SecOps (auditoria SAST, vazamento de segredos, LGPD)"

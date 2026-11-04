@@ -47,6 +47,18 @@ Consulte a íntegra das regras no arquivo [`docs/protocolo_handoff.md`](file:///
 
 As estruturas do ecossistema FTN DevsIA são instaladas e atualizadas **estritamente na raiz do projeto da sua aplicação**, mantendo o repositório matriz clonado (`team-ftn-devs-ia`) limpo e intacto.
 
+### 🏷️ Releases Oficiais & Tags Recentes (Política das Últimas 3 Versões)
+
+O ecossistema adota a política de governança de **manter ativas sempre as 3 últimas releases e tags no GitHub**:
+
+| Release / Tag | Título Oficial | Principais Destaques | Link no GitHub |
+| :---: | :--- | :--- | :---: |
+| [**v1.1.8**](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.8) | Importação Opcional de CI/CD | Pergunta interativa inteligente na instalação e atualização se deseja importar `.github/workflows/`, flags `--with-cicd` e `--no-cicd`, e preservação padrão de esteiras existentes. | [Release v1.1.8 ↗](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.8) |
+| [**v1.1.7**](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.7) | Assistente Oficial de Atualização | Script dedicado `update-ftn.sh` e modo `--update` para atualizar governança e skills mantendo configurações e código intactos. | [Release v1.1.7 ↗](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.7) |
+| [**v1.1.6**](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.6) | Catálogo Completo & Integração ONP | Ritual de alinhamento `/reuniao`, atalhos `@pm` a `@secops`, princípios executáveis `P-001` a `P-008` e portão humano. | [Release v1.1.6 ↗](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.6) |
+
+---
+
 ### 🌟 1. Comando Padrão de Instalação (Sempre puxa o LATEST do GitHub)
 Abra o terminal na pasta da sua aplicação e execute o comando oficial:
 ```bash

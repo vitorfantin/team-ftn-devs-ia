@@ -24,6 +24,27 @@ read_input() {
     fi
 }
 
+# Função para mesclar regras do .gitignore sem sobrescrever nem duplicar
+merge_gitignore() {
+    local src="$1"
+    local dst="$2"
+    local header_added=false
+
+    while IFS= read -r line || [ -n "$line" ]; do
+        trimmed=$(echo "$line" | sed "s/^[[:space:]]*//;s/[[:space:]]*$//")
+        if [ -n "$trimmed" ] && [[ ! "$trimmed" =~ ^# ]]; then
+            if ! grep -Fxq "$trimmed" "$dst" 2>/dev/null; then
+                if [ "$header_added" = false ]; then
+                    echo "" >> "$dst"
+                    echo "# ─── FTN DevsIA: REGRAS DE SEGURANÇA E HIGIENE (MESCLADAS) ─────────" >> "$dst"
+                    header_added=true
+                fi
+                echo "$trimmed" >> "$dst"
+            fi
+        fi
+    done < "$src"
+}
+
 # ─────────────────────────────────────────────────────────────────────────────
 # PARSE DE ARGUMENTOS DE LINHA DE COMANDO
 # ─────────────────────────────────────────────────────────────────────────────
@@ -36,6 +57,7 @@ PARAM_DOOP_URL=""
 PARAM_DOOP_USER=""
 PARAM_DOOP_PASS=""
 PARAM_CICD=""
+PARAM_GITIGNORE=""
 PARAM_UPDATE=false
 
 while [[ $# -gt 0 ]]; do
@@ -76,6 +98,14 @@ while [[ $# -gt 0 ]]; do
             PARAM_CICD=false
             shift
             ;;
+        --merge-gitignore)
+            PARAM_GITIGNORE="merge"
+            shift
+            ;;
+        --no-gitignore|--skip-gitignore)
+            PARAM_GITIGNORE="skip"
+            shift
+            ;;
         --doop-mode)
             PARAM_DOOP_MODE="$2"
             shift 2
@@ -112,6 +142,8 @@ while [[ $# -gt 0 ]]; do
             echo "  --doop-pass <senha>       Senha para login no Doop"
             echo "  --with-cicd               Importa/atualiza as esteiras modulares de CI/CD em .github/workflows/"
             echo "  --no-cicd                 Não importa nem altera as esteiras de CI/CD (preserva as suas)"
+            echo "  --merge-gitignore         Mescla regras recomendadas no .gitignore existente sem duplicar"
+            echo "  --no-gitignore            Preserva intacto o .gitignore existente (não importa nem altera)"
             echo "  -d, --dir <caminho>       Caminho da raiz da aplicação destino"
             echo "  -f, --force, -y, --yes    Execução direta sem confirmações"
             echo "  -h, --help                Exibe esta ajuda"
@@ -358,6 +390,29 @@ fi
     fi
 fi
 
+# 5. Gestão de Proteção do .gitignore (se já existir no projeto, nunca substitui)
+if [ -f "$TARGET_APP_DIR/.gitignore" ] && [ -s "$TARGET_APP_DIR/.gitignore" ]; then
+    if [ -z "$PARAM_GITIGNORE" ]; then
+        echo -e "Detectamos um arquivo ${BLUE}.gitignore${NC} já existente no seu projeto com regras personalizadas."
+        echo "Deseja:"
+        echo "1) Mesclar (Adicionar regras recomendadas de segurança/IA do FTN DevsIA sem sobrescrever as suas) [Padrão: 1]"
+        echo "2) Não importar (Manter seu .gitignore exatamente como está, 100% intacto)"
+        read_input "Escolha uma opção (1 ou 2) [Padrão: 1]: " OPCAO_GITIGNORE
+        OPCAO_GITIGNORE="${OPCAO_GITIGNORE:-1}"
+        if [[ "$OPCAO_GITIGNORE" =~ ^(1|[Ss]|[Mm]|[Mm][Ee][Ss][Cc][Ll][Aa][Rr])$ ]]; then
+            PARAM_GITIGNORE="merge"
+            echo -e "✅ .gitignore: ${GREEN}Será mesclado com as regras recomendadas${NC}\n"
+        else
+            PARAM_GITIGNORE="skip"
+            echo -e "ℹ️  .gitignore: ${YELLOW}Preservado intacto (nenhuma regra será importada)${NC}\n"
+        fi
+    else
+        echo -e "✅ .gitignore: $([ "$PARAM_GITIGNORE" = "merge" ] && echo -e "${GREEN}Mesclar regras FTN${NC}" || echo -e "${YELLOW}Preservar existente intacto${NC}")\n"
+    fi
+else
+    PARAM_GITIGNORE="${PARAM_GITIGNORE:-create}"
+fi
+
 # ─────────────────────────────────────────────────────────────────────────────
 # FASE 3: INSTALAÇÃO DA ENGINE E CÓPIA DOS ARQUIVOS PARA DENTRO DAS PASTAS
 # ─────────────────────────────────────────────────────────────────────────────
@@ -372,15 +427,18 @@ npx --yes @onovoprogramador/onp-spec init --agents "$PARAM_AGENTE" 2>/dev/null |
 # Salva ou atualiza a configuração de governança FTN (ftn.config.json)
 if [ "$PARAM_UPDATE" = "true" ] && [ -f "$TARGET_APP_DIR/ftn.config.json" ]; then
     echo "🔒 Preservando configurações existentes e atualizando versão em ftn.config.json..."
-    sed -i.bak 's/"version": *"[^"]*"/"version": "1.1.8"/' "$TARGET_APP_DIR/ftn.config.json" 2>/dev/null && rm -f "$TARGET_APP_DIR/ftn.config.json.bak" 2>/dev/null || true
+    sed -i.bak 's/"version": *"[^"]*"/"version": "1.1.9"/' "$TARGET_APP_DIR/ftn.config.json" 2>/dev/null && rm -f "$TARGET_APP_DIR/ftn.config.json.bak" 2>/dev/null || true
 else
     echo "⚙️ Salvando configurações em ftn.config.json..."
     cat << EOF > "$TARGET_APP_DIR/ftn.config.json"
 {
-  "version": "1.1.8",
+  "version": "1.1.9",
   "agent": "$PARAM_AGENTE",
   "cicd": {
     "enabled": ${PARAM_CICD:-true}
+  },
+  "gitignore": {
+    "mode": "${PARAM_GITIGNORE:-skip}"
   },
   "clickup": {
     "enabled": ${PARAM_CLICKUP:-false},
@@ -475,6 +533,19 @@ echo "🛠️ Copiando utilitários para dentro de scripts/..."
 cp -rf "$SOURCE_FILES/scripts/"* "$TARGET_APP_DIR/scripts/" 2>/dev/null || true
 chmod +x "$TARGET_APP_DIR/scripts/"*.sh "$TARGET_APP_DIR/scripts/"*.js 2>/dev/null || true
 
+# Gestão do arquivo .gitignore (nunca substitui; mescla ou preserva)
+if [ -f "$SOURCE_FILES/.gitignore" ]; then
+    if [ "$PARAM_GITIGNORE" = "create" ]; then
+        echo "📄 Criando .gitignore com proteções blindadas de segurança e IA..."
+        cp -f "$SOURCE_FILES/.gitignore" "$TARGET_APP_DIR/.gitignore" 2>/dev/null || true
+    elif [ "$PARAM_GITIGNORE" = "merge" ]; then
+        echo "🔀 Mesclando regras de segurança e higiene no .gitignore existente..."
+        merge_gitignore "$SOURCE_FILES/.gitignore" "$TARGET_APP_DIR/.gitignore"
+    else
+        echo "⏭️  .gitignore existente preservado intacto (nenhuma regra importada)."
+    fi
+fi
+
 # Copia assistentes de execução local na raiz da aplicação
 cp -f "$SOURCE_FILES/update-ftn.sh" "$TARGET_APP_DIR/update-ftn.sh" 2>/dev/null || true
 cp -f "$SOURCE_FILES/install-ftn.sh" "$TARGET_APP_DIR/install-ftn.sh" 2>/dev/null || true
@@ -486,13 +557,20 @@ if [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ]; then
 fi
 
 if [ "$PARAM_UPDATE" = "true" ]; then
-    echo -e "\n🎉 ${GREEN}✨ [FTN DevsIA] Atualização concluída com sucesso! (v1.1.8)${NC}"
+    echo -e "\n🎉 ${GREEN}✨ [FTN DevsIA] Atualização concluída com sucesso! (v1.1.9)${NC}"
     echo -e "📁 Aplicação: ${YELLOW}$TARGET_APP_DIR${NC}"
     echo -e "✅ Todas as 25 skills atualizadas em: ${BLUE}$TARGET_APP_DIR/.agents/skills/${NC}"
     if [ "$PARAM_CICD" = "true" ]; then
         echo -e "✅ Esteiras modulares de CI/CD atualizadas em: ${BLUE}$TARGET_APP_DIR/.github/workflows/${NC}"
     else
         echo -e "⏭️  Esteiras de CI/CD: ${YELLOW}Preservadas intactas (não sobrescritas)${NC}"
+    fi
+    if [ "$PARAM_GITIGNORE" = "merge" ]; then
+        echo -e "✅ .gitignore: ${BLUE}Mesclado com regras recomendadas de segurança e IA${NC}"
+    elif [ "$PARAM_GITIGNORE" = "create" ]; then
+        echo -e "✅ .gitignore: ${BLUE}Criado com regras recomendadas de segurança e IA${NC}"
+    else
+        echo -e "⏭️  .gitignore: ${YELLOW}Preservado intacto sem alterações${NC}"
     fi
     echo -e "✅ Protocolo de handoff e tutoriais atualizados em: ${BLUE}$TARGET_APP_DIR/docs/${NC}"
     echo -e "✅ Constituição auditável atualizada em: ${BLUE}$TARGET_APP_DIR/.spec/constituicao.md${NC}"
@@ -508,6 +586,14 @@ else
         echo -e "✅ Esteiras modulares de CI/CD configuradas em: ${BLUE}$TARGET_APP_DIR/.github/workflows/${NC}"
     else
         echo -e "⏭️  Esteiras de CI/CD: ${YELLOW}Ignoradas conforme solicitado (esteiras existentes mantidas intactas)${NC}"
+    fi
+
+    if [ "$PARAM_GITIGNORE" = "merge" ]; then
+        echo -e "✅ .gitignore: ${BLUE}Mesclado com regras recomendadas de segurança e IA${NC}"
+    elif [ "$PARAM_GITIGNORE" = "create" ]; then
+        echo -e "✅ .gitignore: ${BLUE}Criado com regras recomendadas de segurança e IA${NC}"
+    else
+        echo -e "⏭️  .gitignore: ${YELLOW}Preservado intacto sem alterações${NC}"
     fi
 
     if [ "$PARAM_DOOP" = "true" ]; then

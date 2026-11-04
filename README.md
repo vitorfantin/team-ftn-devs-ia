@@ -53,9 +53,9 @@ O ecossistema adota a política de governança de **manter ativas sempre as 3 ú
 
 | Release / Tag | Título Oficial | Principais Destaques | Link no GitHub |
 | :---: | :--- | :--- | :---: |
+| [**v1.1.9**](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.9) | Proteção Inteligente do .gitignore | Se o `.gitignore` já existir, nunca é substituído: o instalador pergunta se deseja mesclar regras de segurança/IA ou manter intacto. Flags `--merge-gitignore` e `--no-gitignore`. | [Release v1.1.9 ↗](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.9) |
 | [**v1.1.8**](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.8) | Importação Opcional de CI/CD | Pergunta interativa inteligente na instalação e atualização se deseja importar `.github/workflows/`, flags `--with-cicd` e `--no-cicd`, e preservação padrão de esteiras existentes. | [Release v1.1.8 ↗](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.8) |
 | [**v1.1.7**](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.7) | Assistente Oficial de Atualização | Script dedicado `update-ftn.sh` e modo `--update` para atualizar governança e skills mantendo configurações e código intactos. | [Release v1.1.7 ↗](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.7) |
-| [**v1.1.6**](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.6) | Catálogo Completo & Integração ONP | Ritual de alinhamento `/reuniao`, atalhos `@pm` a `@secops`, princípios executáveis `P-001` a `P-008` e portão humano. | [Release v1.1.6 ↗](https://github.com/vitorfantin/team-ftn-devs-ia/releases/tag/v1.1.6) |
 
 ---
 
@@ -84,6 +84,7 @@ Se você já possui um projeto com o FTN DevsIA instalado e quer atualizar para 
 
 > **🔒 Garantia de Preservação em Produção:**
 > A atualização renova todas as 25 skills (`.agents/skills/`), protocolo de handoff, tutoriais e constituição, mas **PRESERVA INTACTOS**:
+> - **Seu .gitignore:** Nunca é substituído! Se já existir no projeto, você escolhe mesclar apenas regras recomendadas de segurança/IA sem duplicar nada ou manter o seu 100% intacto;
 > - **Suas esteiras de CI/CD:** O atualizador pergunta interativamente se você deseja atualizar os workflows (opção padrão: **Não sobrescrever**, preservando suas esteiras existentes). Você também pode usar `--no-cicd` ou `--with-cicd`;
 > - **Configurações e Segredos:** Seus tokens, chaves de API e credenciais do ClickUp e Doop em `ftn.config.json`;
 > - **Código-fonte:** Todo o código da aplicação (`src/`, `lib/`, `tests/`);
@@ -99,6 +100,8 @@ Se você clonou o `team-ftn-devs-ia` na sua máquina, informe o caminho da sua a
 *(Para atualizar uma aplicação existente localmente: `./install-ftn.sh /caminho/da/aplicacao --update`).*
 
 > **Flags Opcionais de Automação / Não-Interativo:**
+> - `--merge-gitignore`: Mescla regras recomendadas no `.gitignore` existente sem duplicar nada.
+> - `--no-gitignore`: Preserva intacto o `.gitignore` existente sem alterações.
 > - `--with-cicd`: Importa/atualiza as esteiras modulares de CI/CD (`.github/workflows/`).
 > - `--no-cicd`: Não importa nem altera as esteiras de CI/CD (mantém intactas as do seu projeto).
 > - `--with-clickup` / `--no-clickup`: Habilita ou desabilita integração com ClickUp.
@@ -228,6 +231,8 @@ Antes do merge, o time audita a conformidade completa:
 ## ⚙️ Configuração Modular: CI/CD, ClickUp e Doop Opcionais (`ftn.config.json`)
 
 O instalador `install-ftn.sh` pergunta interativamente as preferências do seu projeto e salva em `ftn.config.json`:
+* **Proteção Inteligente do `.gitignore` (Nunca Substitui):**
+  - Se o projeto já possuir um `.gitignore` com regras personalizadas, o instalador **nunca o sobrescreve**: pergunta se você deseja **Mesclar** (adiciona regras recomendadas de segurança e proteção contra vazamento de caches de IA sem duplicar) ou **Não importar** (preserva o seu arquivo 100% intacto). Em projetos novos sem `.gitignore`, cria a proteção blindada automaticamente.
 * **Esteiras de CI/CD Modulares (Opcionais na Instalação e Atualização):**
   - **Instalação:** Pergunta se deseja importar os fluxos do GitHub Actions (`.github/workflows/`). Se o projeto já tiver esteiras próprias ou você preferir configurar manualmente, basta escolher **Não** (ou `--no-cicd`).
   - **Atualização:** Na atualização, a opção padrão é **Preservar intactas as esteiras existentes** da aplicação (opção 2 - Não). Se desejar sincronizar com as novidades da matriz, escolha **Sim** (ou `--with-cicd`).

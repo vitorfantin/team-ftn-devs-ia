@@ -12,9 +12,12 @@ Este documento define o contrato inegociável de transição de tarefas entre os
 4. **Proibição de Invasão de Alçada:** Cada agente possui limites explícitos do que **NÃO PODE FAZER**. Tentativas de alterar artefatos de outro agente invalidam o ciclo.
 5. **Token de Handoff Obrigatório:** Ao finalizar sua missão, o agente deve emitir o bloco padronizado de Handoff no chat, indicando o próximo especialista responsável.
 6. **Cobertura Integral da Pirâmide de Testes:** Todo o ciclo deve cobrir rigorosamente todos os níveis da pirâmide de testes de software ([`docs/testes/piramide_de_testes.md`](file:///Users/vitorfantin/.gemini/antigravity/worktrees/team-ftn-devs-ia/analise_designacao_tarefas_especificas/docs/testes/piramide_de_testes.md)): Unitários (Nível 1), Componentes (Nível 2), Integração (Nível 3), Contratos de API (Nível 4) e E2E sem XPath (Nível 5).
-7. **Modularidade Opcional (`ftn.config.json`):**
+7. **Modularidade & Preservação Opcional (`ftn.config.json`):**
+   * **Esteiras de CI/CD:** Opcionais (`cicd.enabled`). O usuário escolhe importar os fluxos do GitHub Actions (`.github/workflows/`) ou manter intactas esteiras customizadas existentes da aplicação (`--no-cicd` / `--with-cicd`).
+   * **Proteção do `.gitignore`:** Nunca sobrescreve arquivos existentes; suporta mesclagem inteligente (`--merge-gitignore`) ou preservação 100% intacta (`--no-gitignore`).
    * **ClickUp:** Se `clickup.enabled === true`, features, subtarefas e status são sincronizados no ClickUp ([`docs/tutoriais/integracao_clickup.md`](file:///Users/vitorfantin/.gemini/antigravity/worktrees/team-ftn-devs-ia/analise_designacao_tarefas_especificas/docs/tutoriais/integracao_clickup.md)). Se `false`, o rastreamento é 100% nativo em Markdown (`task.md` e `.spec/features/`).
    * **Doop UI/UX Canvas:** Se `doop.enabled === true`, o Doop Canvas (`http://localhost:3000` ou IP configurado) é a ferramenta padrão de desenho de telas e Design System. Se `false`, o design é documentado diretamente em Markdown em `docs/design/design_system.md`.
+   * **Modo Apenas Governança (`--only-skills` ou `-s`):** Permite atualizar estritamente as mentes especialistas e documentação sem tocar em CI/CD, `.gitignore`, ClickUp nem Doop.
 
 ---
 

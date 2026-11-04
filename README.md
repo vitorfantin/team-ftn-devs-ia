@@ -82,6 +82,19 @@ Se você já possui um projeto com o FTN DevsIA instalado e quer atualizar para 
 ```
 *(ou `./install-ftn.sh --update`)*
 
+#### ⚡ Modo Rápido (Apenas Governança / Sem Tocar em Infraestrutura):
+Se seu projeto já possui esteiras de CI/CD, `.gitignore`, ClickUp e Doop perfeitamente configurados e você deseja apenas atualizar as 25 skills, a documentação e os scripts com **zero perguntas**:
+```bash
+./update-ftn.sh --only-skills
+# ou a versão abreviada:
+./update-ftn.sh -s
+```
+*(Para executar direto via cURL: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/vitorfantin/team-ftn-devs-ia/main/update-ftn.sh)" -- --only-skills`)*
+
+> **💡 Em novas instalações:**
+> Para instalar em um projeto onde a infra já está pronta, use:
+> `./install-ftn.sh /caminho/do/projeto --only-skills`
+
 > **🔒 Garantia de Preservação em Produção:**
 > A atualização renova todas as 25 skills (`.agents/skills/`), protocolo de handoff, tutoriais e constituição, mas **PRESERVA INTACTOS**:
 > - **Seu .gitignore:** Nunca é substituído! Se já existir no projeto, você escolhe mesclar apenas regras recomendadas de segurança/IA sem duplicar nada ou manter o seu 100% intacto;

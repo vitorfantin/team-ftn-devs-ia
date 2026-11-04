@@ -417,3 +417,10 @@ echo -e "  📱 ${YELLOW}/mobile${NC}  : Mobile Dev (Flutter, telas móveis, TDD
 echo -e "  🧪 ${YELLOW}/qa${NC}      : QA Tester (casos de teste, E2E via qa-id, carga K6)"
 echo -e "  🚀 ${YELLOW}/devops${NC}  : DevOps (pipelines CI/CD, Swarm, Traefik, Portão Humano)"
 echo -e "  🛡️  ${YELLOW}/secops${NC}  : SecOps (auditoria SAST, vazamento de segredos, LGPD)"
+
+echo -e "\nComandos de Esteira & Operações:"
+echo -e "  📊 ${YELLOW}/status${NC}    : Painel visual de andamento da esteira"
+echo -e "  ✅ ${YELLOW}/checklist${NC} : Auditoria do Checklist Mestre e onp-spec audit --ci"
+echo -e "  🚦 ${YELLOW}/aprovar${NC}   : Destrava Doop e autoriza o merge no Portão Humano"
+echo -e "  🐛 ${YELLOW}/bug${NC}       : Correção rápida de defeito com TDD Red-Green"
+echo -e "  ❓ ${YELLOW}/ajuda${NC}     : Exibe todos os comandos e atalhos disponíveis"

@@ -86,6 +86,7 @@ Todo Pull Request aberto para `develop` ou `staging` deve anexar no corpo do PR 
 - [ ] **@FrontendDev / @MobileDev:** TDD ≥ 90%, 100% dos `qa-id`s da spec injetados sem seletores ad-hoc.
 - [ ] **@QATester:** Casos de Teste documentados em `docs/testes/casos_de_teste/` antes da automação, pirâmide coberta (unitário, integração, contrato, E2E), zero XPath e teste de carga K6.
 - [ ] **@SecOps:** Higiene do Git aprovada (zero secrets, zero arquivos sensíveis), auditoria SAST (`npm audit`) sem falhas críticas e conformidade LGPD.
+- [ ] **Motor Mecânico ONP:** Execução de `onp-spec verify` e `onp-spec audit --ci` com exit code 0.
 
 ---
 
@@ -103,6 +104,6 @@ Após o Pull Request ser aberto e todas as esteiras de CI passarem com sucesso (
    👉 Checklist de Qualidade: 100% Homologado
    
    Por favor, analise as alterações no link acima e responda no chat:
-   "Aprovo o Merge" para autorizar a publicação em Staging/Produção.
+   "/aprovar" ou "Aprovo o Merge" para autorizar a publicação em Staging/Produção.
    ```
-3. O merge e o deploy só prosseguem após o comando explícito de aprovação do usuário no chat.
+3. O merge e o deploy só prosseguem após o comando explícito de aprovação do usuário no chat (`/aprovar` ou `"Aprovo o Merge"`).

@@ -67,25 +67,43 @@ Abra o terminal na pasta da sua aplicação existente e execute o instalador ofi
 
 ---
 
-### 3. Comandos de Ativação no Chat da IA
-Abra o seu editor na pasta da **sua aplicação** e utilize os comandos mestres conforme a necessidade:
+### 3. Comandos & Atalhos de Ativação no Chat da IA
+Abra o seu editor na pasta da **sua aplicação** e utilize os comandos mestres conforme a necessidade (o time aceita chamadas via **`/`** ou menções via **`@`**):
 
-#### 👥 Comandos de Orquestração Geral:
-* **`/reuniao`** *(aliases: `/reuniao-time-ftn`, `/kickoff-ftn`)*: Convoca **todos os especialistas do time** para a mesa redonda de alinhamento. O `@ProductManager` ouve a demanda, cada membro faz perguntas pontuais, a spec ONP é gerada, o protótipo no Doop é submetido à sua aprovação visual, e a esteira de desenvolvimento é disparada com Checklist Mestre e Portão Humano pré-merge.
+#### 👥 Rituais de Início & Reunião Geral:
+* **`/reuniao`** *(ou `@time reuniao`)*: Convoca **todos os especialistas do time** para a mesa redonda de alinhamento. O `@ProductManager` ouve a demanda, cada membro faz perguntas pontuais, a spec ONP é gerada, o protótipo no Doop é submetido à sua aprovação visual, e a esteira de desenvolvimento é disparada com Checklist Mestre e Portão Humano pré-merge.
 * **`/iniciar-time-ftn`**: Inicialização da governança na raiz da aplicação, configuração do [ftn.config.json](file:///Users/vitorfantin/.gemini/antigravity/worktrees/team-ftn-devs-ia/analise_designacao_tarefas_especificas/ftn.config.json) e validação de estruturas.
 
-#### ⚡ Atalhos Rápidos para Chamar Cada Especialista Individualmente:
-| Comando | Especialista | Papel e Alçada |
-| :--- | :--- | :--- |
-| **`/pm`** | `@ProductManager` | Regras de negócio, escopo de features, histórias (`US`), critérios de aceite (`AC`) e congelamento da Tabela de `qa-id` |
-| **`/tl`** | `@TechLead` | Arquitetura técnica, modelagem `postgres:18.6`, contratos de API e metas de stress |
-| **`/uiux`** | `@UIUXDesigner` | Protótipos visuais no Doop Canvas (Local/Rede), tokens, 5 estados e acessibilidade WCAG |
-| **`/back`** | `@BackendDev` | DER vivo (`docs/banco_de_dados/diagrama_er.md`), migrations, APIs seguras OWASP e TDD ≥ 90% |
-| **`/front`** | `@FrontendDev` | Interface Web responsiva, componentes atômicos, injeção dos `qa-id`s e TDD ≥ 90% |
-| **`/mobile`** | `@MobileDev` | Aplicativo Flutter, secure storage, consumo de APIs e TDD ≥ 90% |
-| **`/qa`** | `@QATester` | Planejamento de Casos de Teste, automação E2E sem XPath (`qa-id`), pirâmide de testes e stress K6 |
-| **`/devops`** | `@DevOps` | Esteiras de CI/CD, Swarm, Traefik (SSL + Basic Auth) e trava do Portão Humano pré-merge |
-| **`/secops`** | `@SecOps` | Auditoria SAST, varredura de segredos (Zero-Secret Leak), higiene do Git e compliance LGPD |
+#### 🎯 Chamar Especialistas Diretamente (via `@` ou `/`):
+| Menção | Comando | Especialista | Papel e Alçada |
+| :---: | :---: | :--- | :--- |
+| **`@pm`** | **`/pm`** | `@ProductManager` | Regras de negócio, escopo de features, histórias (`US`), critérios de aceite (`AC`) e congelamento da Tabela de `qa-id` |
+| **`@tl`** | **`/tl`** | `@TechLead` | Arquitetura técnica, modelagem `postgres:18.6`, contratos de API e metas de stress |
+| **`@uiux`** | **`/uiux`** | `@UIUXDesigner` | Protótipos visuais no Doop Canvas (Local/Rede), tokens, 5 estados e acessibilidade WCAG |
+| **`@back`** | **`/back`** | `@BackendDev` | DER vivo (`docs/banco_de_dados/diagrama_er.md`), migrations, APIs seguras OWASP e TDD ≥ 90% |
+| **`@front`** | **`/front`** | `@FrontendDev` | Interface Web responsiva, componentes atômicos, injeção dos `qa-id`s e TDD ≥ 90% |
+| **`@mobile`** | **`/mobile`** | `@MobileDev` | Aplicativo Flutter, secure storage, consumo de APIs e TDD ≥ 90% |
+| **`@qa`** | **`/qa`** | `@QATester` | Planejamento de Casos de Teste, automação E2E sem XPath (`qa-id`), pirâmide de testes e stress K6 |
+| **`@devops`** | **`/devops`** | `@DevOps` | Esteiras de CI/CD, Swarm, Traefik (SSL + Basic Auth) e trava do Portão Humano pré-merge |
+| **`@secops`** | **`/secops`** | `@SecOps` | Auditoria SAST, varredura de segredos (Zero-Secret Leak), higiene do Git e compliance LGPD |
+
+#### 🚦 Controle da Esteira & Governança:
+* **`/status`**: Exibe o painel visual da esteira e o status mecânico via `onp-spec resumo --tabela`.
+* **`/checklist`**: Audita o Checklist Mestre de Qualidade FTN e valida o exit code 0 de `onp-spec audit --ci`.
+* **`/aprovar`**: Destrava a validação visual do Doop e autoriza o merge pré-deploy no Portão Humano.
+* **`/handoff`**: Força a emissão formal do bloco de passagem de bastão para a próxima fase.
+* **`/bloqueio`**: Sinaliza impedimento crítico e registra pergunta em aberto (`Q-xxx`) na spec.
+
+#### ⚙️ Engenharia, Qualidade & Operações:
+* **`/bug`**: Ciclo de resolução rápida de defeitos baseado em TDD (cria teste que falha primeiro e corrige).
+* **`/review`**: Code review conjunto de arquitetura e segurança (`@TechLead` + `@SecOps`) pré-PR.
+* **`/testes`**: Raio-X da pirâmide de testes completa e taxa de cobertura + `onp-spec verify`.
+* **`/der`**: Renderiza o Diagrama ER vivo do banco de dados relacional em formato Mermaid.
+* **`/doop`**: Exibe o link, credenciais e telas ativas no Doop Canvas.
+* **`/deploy`**: Publicação assistida nos ambientes de Staging (Swarm + Traefik) ou Produção.
+* **`/rollback`**: Reversão emergencial de versão no Docker Swarm sem downtime.
+* **`/resumo`**: Release notes formatadas em linguagem de negócio para envio ao cliente final.
+* **`/ajuda`**: Cola rápida de todos os comandos e atalhos disponíveis.
 
 ---
 

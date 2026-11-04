@@ -28,13 +28,12 @@ read_input() {
 # PARSE DE ARGUMENTOS DE LINHA DE COMANDO
 # ─────────────────────────────────────────────────────────────────────────────
 TARGET_APP_DIR=""
-AUTO_CONFIRM=false
 PARAM_AGENTE=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -f|--force|-y|--yes)
-            AUTO_CONFIRM=true
+            # Mantido para retrocompatibilidade
             shift
             ;;
         -a|--agent)
@@ -49,9 +48,9 @@ while [[ $# -gt 0 ]]; do
             echo "Uso: ./install-ftn.sh [DIRETORIO_DA_APLICACAO] [OPCOES]"
             echo ""
             echo "Opções:"
-            echo "  -f, --force, -y, --yes    Continua e copia arquivos dentro das pastas já existentes"
             echo "  -a, --agent <nome>        Seleciona o agente (antigravity, cursor, codex, claude)"
             echo "  -d, --dir <caminho>       Caminho da raiz da aplicação destino"
+            echo "  -f, --force, -y, --yes    Execução direta sem confirmações"
             echo "  -h, --help                Exibe esta ajuda"
             exit 0
             ;;
@@ -90,51 +89,21 @@ TARGET_APP_DIR="$(cd "$TARGET_APP_DIR" && pwd)"
 echo -e "📁 ${BLUE}Diretório Alvo da Aplicação:${NC} ${YELLOW}$TARGET_APP_DIR${NC}\n"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# FASE 1: VALIDAÇÃO DE CONFLITOS E PASTAS JÁ EXISTENTES NA APLICAÇÃO
+# FASE 1: VARREDURA E CONFIRMAÇÃO DE CÓPIA NAS PASTAS JÁ CRIADAS
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${GREEN}[1/3] Realizando varredura preventiva na raiz da aplicação...${NC}"
-CONFLITOS=0
-AVISOS=""
+echo -e "${GREEN}[1/3] Verificando pastas na raiz da aplicação...${NC}"
 
-if [ -d "$TARGET_APP_DIR/.spec" ]; then
-    AVISOS="${AVISOS}⚠️  A pasta '.spec' já existe na aplicação.\n"
-    ((CONFLITOS++))
-fi
+PASTAS_EXISTENTES=""
+[ -d "$TARGET_APP_DIR/.spec" ] && PASTAS_EXISTENTES="${PASTAS_EXISTENTES} .spec"
+[ -d "$TARGET_APP_DIR/.github/workflows" ] && PASTAS_EXISTENTES="${PASTAS_EXISTENTES} .github/workflows"
+[ -d "$TARGET_APP_DIR/docs" ] && PASTAS_EXISTENTES="${PASTAS_EXISTENTES} docs"
+[ -d "$TARGET_APP_DIR/.agents" ] && PASTAS_EXISTENTES="${PASTAS_EXISTENTES} .agents"
 
-if [ -d "$TARGET_APP_DIR/.github/workflows" ]; then
-    AVISOS="${AVISOS}⚠️  A pasta '.github/workflows' já existe na aplicação.\n"
-    ((CONFLITOS++))
-fi
-
-if [ -d "$TARGET_APP_DIR/docs" ]; then
-    AVISOS="${AVISOS}⚠️  A pasta 'docs' já existe na aplicação.\n"
-    ((CONFLITOS++))
-fi
-
-if [ $CONFLITOS -gt 0 ]; then
-    echo -e "${YELLOW}\n🚨 ATENÇÃO: Detectamos pastas já existentes no projeto da sua aplicação:${NC}"
-    echo -e "${YELLOW}${AVISOS}${NC}"
-    echo -e "${BLUE}ℹ️  Se você continuar, o FTN DevsIA irá copiar e mesclar os arquivos dentro das pastas já criadas (.spec, docs, .github, etc.), preservando os arquivos que você já tem no seu projeto.${NC}\n"
-
-    if [ "$AUTO_CONFIRM" = "true" ]; then
-        echo -e "${GREEN}⚡ Modo de continuação automática ativado (--force / -y). Prosseguindo com a cópia dos arquivos para dentro das pastas existentes...${NC}\n"
-    else
-        echo "Como você deseja prosseguir?"
-        echo -e "  ${GREEN}1) Continuar mesmo assim e copiar os arquivos dentro das pastas já criadas (Recomendado)${NC}"
-        echo -e "  ${RED}2) Cancelar a instalação para proteger o projeto atual${NC}"
-        echo ""
-        read_input "Escolha uma opção (1 ou 2) [Padrão: 1 - Continuar]: " RESPOSTA_CONFLITO
-        RESPOSTA_CONFLITO="${RESPOSTA_CONFLITO:-1}"
-
-        if [[ "$RESPOSTA_CONFLITO" =~ ^([1SsYy]|[Ss][Ii][Mm]|[Yy][Ee][Ss])$ ]]; then
-            echo -e "${GREEN}✅ Opção 1 selecionada. Prosseguindo com a cópia dos arquivos para dentro das pastas existentes...${NC}\n"
-        else
-            echo -e "${RED}❌ Instalação cancelada pelo usuário.${NC}"
-            exit 1
-        fi
-    fi
+if [ -n "$PASTAS_EXISTENTES" ]; then
+    echo -e "ℹ️  Pastas já criadas detectadas na aplicação:${YELLOW}${PASTAS_EXISTENTES}${NC}"
+    echo -e "📂 ${GREEN}Mesclagem automática: os arquivos do FTN DevsIA serão copiados diretamente para dentro dessas pastas, mantendo todos os arquivos existentes do seu projeto intactos.${NC}\n"
 else
-    echo -e "✅ Nenhuma pasta conflitante detectada. Diretório seguro para instalação limpa.\n"
+    echo -e "✅ Diretório limpo. Pastas serão criadas normalmente.\n"
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -174,9 +143,9 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
-# FASE 3: INSTALAÇÃO DA ENGINE E CÓPIA DAS ESTRUTURAS NA APLICAÇÃO
+# FASE 3: INSTALAÇÃO DA ENGINE E CÓPIA DOS ARQUIVOS PARA DENTRO DAS PASTAS
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${GREEN}[3/3] Instalando framework e copiando estruturas na raiz da aplicação...${NC}"
+echo -e "${GREEN}[3/3] Copiando arquivos para dentro das pastas na aplicação...${NC}"
 
 cd "$TARGET_APP_DIR" || exit 1
 
@@ -192,7 +161,7 @@ if [ -d "$TARGET_APP_DIR/.agent" ]; then
     rm -rf "$TARGET_APP_DIR/.agent"
 fi
 
-# Cria ou garante as pastas necessárias na aplicação (mescla com as já existentes)
+# Garante que todas as pastas de destino existam na aplicação
 mkdir -p "$TARGET_APP_DIR/docs/documentacao_projeto"
 mkdir -p "$TARGET_APP_DIR/docs/tutoriais"
 mkdir -p "$TARGET_APP_DIR/docs/design"
@@ -218,25 +187,25 @@ else
 fi
 
 # Copia estruturas essenciais diretamente para dentro das pastas na aplicação
-echo "📋 Copiando perfis especialistas e skills para .agents/skills/..."
+echo "📋 Copiando perfis especialistas e skills para dentro de .agents/skills/..."
 cp -f "$SOURCE_FILES"/[0-9]*.md "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 cp -f "$SOURCE_FILES/.agents/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || \
 cp -f "$SOURCE_FILES/.agent/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 
-echo "⚙️ Copiando esteiras modulares de CI/CD para .github/workflows/..."
+echo "⚙️ Copiando esteiras modulares de CI/CD para dentro de .github/workflows/..."
 cp -rf "$SOURCE_FILES/.github/workflows/"* "$TARGET_APP_DIR/.github/workflows/" 2>/dev/null || true
 
-echo "📂 Copiando central de governança e documentação para docs/..."
+echo "📂 Copiando central de governança e documentação para dentro de docs/..."
 cp -rf "$SOURCE_FILES/docs/"* "$TARGET_APP_DIR/docs/" 2>/dev/null || true
 
-echo "📝 Copiando constituição e arquitetura base para .spec/..."
+echo "📝 Copiando constituição e arquitetura base para dentro de .spec/..."
 cp -f "$SOURCE_FILES/.spec/constituicao.md" "$TARGET_APP_DIR/.spec/" 2>/dev/null || true
 cp -f "$SOURCE_FILES/.spec/arquitetura.md" "$TARGET_APP_DIR/.spec/" 2>/dev/null || true
 
-echo "🐳 Copiando stack do Doop UI/UX Canvas para docker/doop/..."
+echo "🐳 Copiando stack do Doop UI/UX Canvas para dentro de docker/doop/..."
 cp -rf "$SOURCE_FILES/docker/doop/"* "$TARGET_APP_DIR/docker/doop/" 2>/dev/null || true
 
-echo "🛠️ Copiando utilitários para scripts/..."
+echo "🛠️ Copiando utilitários para dentro de scripts/..."
 cp -rf "$SOURCE_FILES/scripts/"* "$TARGET_APP_DIR/scripts/" 2>/dev/null || true
 chmod +x "$TARGET_APP_DIR/scripts/"*.sh "$TARGET_APP_DIR/scripts/"*.js 2>/dev/null || true
 
@@ -245,6 +214,6 @@ if [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ]; then
     rm -rf "$TEMP_DIR"
 fi
 
-echo -e "\n${GREEN}✨ [FTN DevsIA] Todas as estruturas foram copiadas com sucesso para dentro das pastas em:${NC}"
+echo -e "\n${GREEN}✨ [FTN DevsIA] Todos os arquivos foram copiados com sucesso para dentro das pastas em:${NC}"
 echo -e "👉 ${YELLOW}$TARGET_APP_DIR${NC}\n"
 echo -e "Abra o seu editor ($PARAM_AGENTE) na pasta da sua aplicação e digite ${YELLOW}/iniciar-time-ftn${NC} no chat para começar."

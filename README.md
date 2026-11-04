@@ -24,7 +24,7 @@ Este ecossistema garante de forma intransponível:
 Para eliminar ambiguidades e sobreposições, a execução segue uma esteira sequencial orientada a artefatos e cards do ClickUp:
 
 ```text
-[Fase 0: @ProductManager]  ──► Reunião (/reuniao-time-ftn), Spec ONP + Tabela de qa-ids
+[Fase 0: @ProductManager]  ──► Reunião (/reuniao), Spec ONP + Tabela de qa-ids
          │
 [Fase 1: @TechLead]        ──► Arquitetura, Contratos e Postgres 18.6 em .spec/arquitetura.md
          │
@@ -70,8 +70,8 @@ Abra o terminal na pasta da sua aplicação existente e execute o instalador ofi
 ### 3. Comandos de Ativação no Chat da IA
 Abra o seu editor na pasta da **sua aplicação** e utilize os comandos mestres conforme a necessidade:
 
-#### 💬 `/reuniao-time-ftn` (Kickoff de Demanda com o Cliente)
-Use este comando para convocar **todos os especialistas do time** para uma mesa redonda:
+#### 💬 `/reuniao` (Kickoff de Demanda com o Cliente)
+Use este comando (ou o alias `/reuniao-time-ftn`) para convocar **todos os especialistas do time** para uma mesa redonda:
 * O `@ProductManager` abre a reunião e ouve o que o cliente/usuário deseja construir;
 * Cada especialista (@TechLead, @UIUXDesigner, @BackendDev, @FrontendDev, @MobileDev, @QATester, @DevOps, @SecOps) faz perguntas pontuais para entender profundamente as regras, telas, dados e riscos;
 * Com tudo alinhado e homologado pelo cliente, o PM gera a spec no padrão ONP (`npx onp-spec new <feature>`) com histórias, critérios de aceite e tabela de `qa-id`s;
@@ -106,7 +106,8 @@ raiz-do-seu-projeto/
 ├── ftn.config.json                     # ⚙️ Configurações ativas do projeto (ClickUp, Doop e Engine Spec)
 ├── .agents/
 │   └── skills/                         # 👥 As Mentes Especialistas do Time FTN
-│       ├── reuniao_time_ftn.md         # 💬 Comando /reuniao-time-ftn (Mesa redonda e alinhamento com cliente)
+│       ├── reuniao.md                  # 💬 Comando /reuniao (Mesa redonda e alinhamento com cliente)
+│       ├── reuniao_time_ftn.md         # 💬 Alias do comando /reuniao
 │       ├── iniciar_time_ftn.md         # 🚀 Comando /iniciar-time-ftn (Inicialização do projeto)
 │       ├── 1_ProductManager.md         # Fase Zero, Escopo, Negócio e Tabela Mestra de qa-id
 │       ├── 2_TechLead.md               # Arquitetura, Postgres 18.6, Pirâmide de testes e SOLID

@@ -1,5 +1,5 @@
-# Command: /reuniao-time-ftn
-# Aliases: /kickoff-ftn, /alinhamento-ftn
+# Command: /reuniao
+# Aliases: /reuniao-time-ftn, /kickoff-ftn, /alinhamento-ftn
 # Team: FTN DevsIA
 # Governança: Spec-Driven (@onovoprogramador/onp-spec) & Protocolo de Handoff
 

@@ -354,6 +354,7 @@ echo "📋 Copiando perfis especialistas e skills para dentro de .agents/skills/
 cp -f "$SOURCE_FILES"/[0-9]*.md "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 cp -f "$SOURCE_FILES/.agents/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || \
 cp -f "$SOURCE_FILES/.agent/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
+cp -f "$SOURCE_FILES/.agents/skills/reuniao.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 cp -f "$SOURCE_FILES/.agents/skills/reuniao_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 
 echo "⚙️ Copiando esteiras modulares de CI/CD para dentro de .github/workflows/..."
@@ -405,5 +406,5 @@ if [ "$PARAM_DOOP" = "true" ]; then
 fi
 
 echo -e "\nComandos disponíveis no chat da sua IA ($PARAM_AGENTE):"
-echo -e "  💬 ${YELLOW}/reuniao-time-ftn${NC} : Convoca a mesa com todos os especialistas para ouvir a demanda do cliente e alinhar dúvidas"
+echo -e "  💬 ${YELLOW}/reuniao${NC} (ou ${YELLOW}/reuniao-time-ftn${NC}) : Convoca a mesa com todos os especialistas para ouvir a demanda do cliente e alinhar dúvidas"
 echo -e "  🚀 ${YELLOW}/iniciar-time-ftn${NC} : Inicializa a governança e o ciclo de desenvolvimento da aplicação"

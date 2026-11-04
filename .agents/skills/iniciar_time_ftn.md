@@ -4,7 +4,7 @@
 Sempre que o usuário digitar este comando no chat, o ecossistema de agentes especialistas é ativado na raiz da aplicação com governança estrita de papéis, orquestração pelo **Spec-Driven (@onovoprogramador/onp-spec)** e respeito às preferências de **`ftn.config.json`** (ClickUp e Doop opcionais) e ao [Protocolo de Handoff](file:///Users/vitorfantin/.gemini/antigravity/worktrees/team-ftn-devs-ia/analise_designacao_tarefas_especificas/docs/protocolo_handoff.md).
 
 > **💡 Dica de Reunião com o Cliente:** Se você deseja convocar a banca de especialistas para apresentar uma nova demanda do cliente e responder a perguntas de alinhamento antes do código, use o comando:
-> 👉 **`/reuniao-time-ftn`**
+> 👉 **`/reuniao`** (ou `/reuniao-time-ftn`)
 
 ---
 
@@ -30,7 +30,7 @@ Sempre que o usuário digitar este comando no chat, o ecossistema de agentes esp
     - `.github/workflows/` (`ci-develop.yml`, `ci-staging.yml`, `cd-staging.yml`, `cd-production.yml`, `security-scan.yml`)
     - `docker/doop/` (stack do Doop UI/UX Canvas)
     - `scripts/` (`clickup_sync.js`, `install_doop.sh`)
-    - `.agents/skills/` (todos os perfis `[0-9]*.md`, `iniciar_time_ftn.md` e `reuniao_time_ftn.md`)
+    - `.agents/skills/` (todos os perfis `[0-9]*.md`, `iniciar_time_ftn.md`, `reuniao.md` e `reuniao_time_ftn.md`)
 
 * **Se o workspace atual já for o projeto da aplicação do usuário:**
   * Garanta que as estruturas acima estejam presentes na raiz da aplicação. Mesmo que as pastas (`.spec/`, `docs/`, `.github/`, `.agents/`, etc.) já existam, copie e mescle os arquivos da governança FTN diretamente para dentro dessas pastas já criadas, preservando os arquivos preexistentes do projeto.

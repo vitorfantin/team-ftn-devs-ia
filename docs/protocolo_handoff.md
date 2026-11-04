@@ -6,7 +6,7 @@ Este documento define o contrato inegociável de transição de tarefas entre os
 
 ## 🎯 Princípios Fundamentais de Isolamento & Governança
 
-1. **Reunião de Kickoff & Alinhamento (`/reuniao-time-ftn`):** Antes de iniciar qualquer feature ou demanda de cliente, todos os especialistas participam da mesa redonda de alinhamento para fazer perguntas pontuais ao cliente, esclarecer ambiguidades e formalizar a spec no padrão ONP (@onovoprogramador/onp-spec).
+1. **Reunião de Kickoff & Alinhamento (`/reuniao`):** Antes de iniciar qualquer feature ou demanda de cliente, todos os especialistas participam da mesa redonda de alinhamento (`/reuniao` ou `/reuniao-time-ftn`) para fazer perguntas pontuais ao cliente, esclarecer ambiguidades e formalizar a spec no padrão ONP (@onovoprogramador/onp-spec).
 2. **Fonte Única da Verdade (SSOT):** Nenhuma decisão de escopo, arquitetura ou identificador de teste (`qa-id`) é tomada em memória volátil de chat. Toda decisão deve ser registrada em seu respectivo arquivo na pasta `.spec/` ou `docs/`.
 3. **Execução Estritamente Sequencial por Fases:** Um agente só inicia sua atuação quando o artefato de saída da fase anterior estiver formalmente gerado e homologado pelo usuário humano.
 4. **Proibição de Invasão de Alçada:** Cada agente possui limites explícitos do que **NÃO PODE FAZER**. Tentativas de alterar artefatos de outro agente invalidam o ciclo.
@@ -22,7 +22,7 @@ Este documento define o contrato inegociável de transição de tarefas entre os
 
 | Fase | Agente Responsável | Artefato de Entrada | Ação de Gestão (ClickUp / Markdown) | Artefato de Saída | Próximo Agente |
 | :---: | :--- | :--- | :--- | :--- | :--- |
-| **0** | `@ProductManager` | Solicitação do cliente (`/reuniao-time-ftn` ou `/iniciar-time-ftn`) | Cria Feature (ClickUp ou `task.md`), anexa links da spec e quebra subtarefas técnicas ([TL], [UI/UX], [BACK], [FRONT/MOB]). | `.spec/constituicao.md`<br>`.spec/features/[feature]/spec.md` | `@TechLead` |
+| **0** | `@ProductManager` | Solicitação do cliente (`/reuniao` ou `/iniciar-time-ftn`) | Cria Feature (ClickUp ou `task.md`), anexa links da spec e quebra subtarefas técnicas ([TL], [UI/UX], [BACK], [FRONT/MOB]). | `.spec/constituicao.md`<br>`.spec/features/[feature]/spec.md` | `@TechLead` |
 | **1** | `@TechLead` | `.spec/features/[feature]/spec.md` | Assume card [TL], anexa arquitetura técnica, contratos de API e metas de stress. | `.spec/arquitetura.md` | `@UIUXDesigner` & `@BackendDev` |
 | **2** | `@UIUXDesigner` | `.spec/features/[feature]/spec.md`<br>`.spec/arquitetura.md` | Assume card [UI/UX]. Desenha telas (no Doop se ativo ou em Markdown), mapeia 5 estados e fallback anti-crash. Apresenta ao cliente para aprovação. | `docs/design/design_system.md`<br>Doop Canvas URL (se ativo) | `@FrontendDev` ou `@MobileDev`<br>*(Trava Rígida: Front/Mobile bloqueados até UI/UX aprovada pelo cliente)* |
 | **3** | `@BackendDev`<br>`@FrontendDev`<br>`@MobileDev` | Specs de Produto, Arquitetura, Design e DER | Assumem cards. Backend atualiza DER vivo (`docs/banco_de_dados/diagrama_er.md`), devs codificam TDD ≥90%, abrem PR para `develop`. | Pull Request aberto para `develop`<br>`docs/banco_de_dados/diagrama_er.md` atualizado | `@QATester` |

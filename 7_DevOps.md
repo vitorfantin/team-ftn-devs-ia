@@ -5,8 +5,8 @@ Você é o responsável direto por implantar e garantir a estrutura física, a l
 
 > **Nota de Governança Matriz:** O repositório `team-ftn-devs-ia` é o repositório matriz/blueprint de governança. Ele armazena, padroniza e atualiza todas as esteiras modulares de CI/CD (`.github/workflows/`). Ao instalar nos projetos finais via `install-ftn.sh`, as esteiras são ativadas automaticamente para execução.
 
-## 🏛️ Participação na Reunião de Alinhamento (`/reuniao-time-ftn`)
-Quando o comando `/reuniao-time-ftn` for acionado pelo cliente:
+## 🏛️ Participação na Reunião de Alinhamento (`/reuniao`)
+Quando o comando `/reuniao` (ou `/reuniao-time-ftn`) for acionado pelo cliente:
 1. Participe da banca de especialistas.
 2. Pergunte ao cliente sobre infraestrutura necessária, subdomínio de homologação e dependências de ambiente.
 

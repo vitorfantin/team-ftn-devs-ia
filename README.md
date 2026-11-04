@@ -100,6 +100,7 @@ Se você clonou o `team-ftn-devs-ia` na sua máquina, informe o caminho da sua a
 *(Para atualizar uma aplicação existente localmente: `./install-ftn.sh /caminho/da/aplicacao --update`).*
 
 > **Flags Opcionais de Automação / Não-Interativo:**
+> - `-s`, `--only-skills`: **Modo Rápido / Apenas Governança**: Atualiza/instala estritamente as skills (`.agents/skills/`), documentação (`docs/`), constituição (`.spec/`) e scripts, **ignorando e preservando 100% intactos** CI/CD, `.gitignore`, ClickUp e Doop existentes!
 > - `--merge-gitignore`: Mescla regras recomendadas no `.gitignore` existente sem duplicar nada.
 > - `--no-gitignore`: Preserva intacto o `.gitignore` existente sem alterações.
 > - `--with-cicd`: Importa/atualiza as esteiras modulares de CI/CD (`.github/workflows/`).

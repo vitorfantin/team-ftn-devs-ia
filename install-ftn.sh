@@ -106,6 +106,13 @@ while [[ $# -gt 0 ]]; do
             PARAM_GITIGNORE="skip"
             shift
             ;;
+        -s|--only-skills|--apenas-skills|--quick)
+            PARAM_CICD=false
+            PARAM_GITIGNORE="skip"
+            PARAM_CLICKUP=false
+            PARAM_DOOP=false
+            shift
+            ;;
         --doop-mode)
             PARAM_DOOP_MODE="$2"
             shift 2
@@ -131,6 +138,7 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Opções:"
             echo "  -u, --update              Atualiza skills e esteiras mantendo configurações existentes"
+            echo "  -s, --only-skills         Atualiza/instala APENAS as skills e governança (ignora CI/CD, .gitignore, ClickUp e Doop)"
             echo "  -a, --agent <nome>        Seleciona o agente (antigravity, cursor, codex, claude)"
             echo "  --with-clickup            Habilita o ClickUp para gestão visual de tarefas"
             echo "  --no-clickup              Desabilita o ClickUp (rastreamento local via Markdown)"
@@ -209,7 +217,7 @@ if [ -f "$TARGET_APP_DIR/ftn.config.json" ]; then
     else
         echo -e "ℹ️  Detectamos uma instalação existente do FTN DevsIA neste projeto."
         echo "Deseja:"
-        echo "1) Apenas atualizar skills e esteiras mantendo configurações existentes (Recomendado) [Padrão]"
+        echo "1) Apenas atualizar skills e governança mantendo configurações existentes (Recomendado) [Padrão]"
         echo "2) Reconfigurar ClickUp, Doop e ferramentas do zero"
         read_input "Escolha uma opção (1 ou 2) [Padrão: 1]: " OPCAO_MODO_INSTALL
         OPCAO_MODO_INSTALL="${OPCAO_MODO_INSTALL:-1}"

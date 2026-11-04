@@ -39,7 +39,7 @@ jobs:
       - name: 🧹 Validação de Higiene do Repositório (.gitignore)
         run: |
           echo "Verificando se arquivos sensíveis ou pastas de agentes de IA foram commitados..."
-          if git ls-files | grep -E '(\.env|\.pem|\.key|\.cursor/|\.claude/|\.agents/|\.gemini/)'; then
+          if git ls-files | grep -E '(\.env|\.pem|\.key|\.cursor/|\.claude/|\.agents/cache/|\.agents/logs/|\.gemini/)'; then
             echo "❌ ERRO DE SECOPS: Arquivos sensíveis ou caches de agentes detectados no controle de versão!"
             exit 1
           fi

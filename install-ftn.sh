@@ -184,6 +184,14 @@ cd "$TARGET_APP_DIR" || exit 1
 echo "📦 Executando npx @onovoprogramador/onp-spec para o agente '$PARAM_AGENTE'..."
 npx --yes @onovoprogramador/onp-spec init --agents "$PARAM_AGENTE" 2>/dev/null || true
 
+# Migra .agent legado para .agents na aplicacao se existir
+if [ -d "$TARGET_APP_DIR/.agent" ]; then
+    echo "🔄 Migrando .agent legado para .agents..."
+    mkdir -p "$TARGET_APP_DIR/.agents"
+    cp -rf "$TARGET_APP_DIR/.agent/"* "$TARGET_APP_DIR/.agents/" 2>/dev/null || true
+    rm -rf "$TARGET_APP_DIR/.agent"
+fi
+
 # Cria ou garante as pastas necessárias na aplicação (mescla com as já existentes)
 mkdir -p "$TARGET_APP_DIR/docs/documentacao_projeto"
 mkdir -p "$TARGET_APP_DIR/docs/tutoriais"
@@ -194,7 +202,7 @@ mkdir -p "$TARGET_APP_DIR/docs/banco_de_dados"
 mkdir -p "$TARGET_APP_DIR/docker/doop"
 mkdir -p "$TARGET_APP_DIR/.spec/features"
 mkdir -p "$TARGET_APP_DIR/.spec/verification"
-mkdir -p "$TARGET_APP_DIR/.agent/skills"
+mkdir -p "$TARGET_APP_DIR/.agents/skills"
 mkdir -p "$TARGET_APP_DIR/.github/workflows"
 mkdir -p "$TARGET_APP_DIR/scripts"
 
@@ -210,9 +218,10 @@ else
 fi
 
 # Copia estruturas essenciais diretamente para dentro das pastas na aplicação
-echo "📋 Copiando perfis especialistas e skills para .agent/skills/..."
-cp -f "$SOURCE_FILES"/[0-9]*.md "$TARGET_APP_DIR/.agent/skills/" 2>/dev/null || true
-cp -f "$SOURCE_FILES/.agent/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agent/skills/" 2>/dev/null || true
+echo "📋 Copiando perfis especialistas e skills para .agents/skills/..."
+cp -f "$SOURCE_FILES"/[0-9]*.md "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
+cp -f "$SOURCE_FILES/.agents/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || \
+cp -f "$SOURCE_FILES/.agent/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 
 echo "⚙️ Copiando esteiras modulares de CI/CD para .github/workflows/..."
 cp -rf "$SOURCE_FILES/.github/workflows/"* "$TARGET_APP_DIR/.github/workflows/" 2>/dev/null || true

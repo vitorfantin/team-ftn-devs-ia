@@ -90,7 +90,7 @@ O agente `@ProductManager` assumirá o controle imediato:
 
 ```text
 raiz-do-seu-projeto/
-├── .agent/
+├── .agents/
 │   └── skills/                         # 👥 As Mentes Especialistas do Time FTN
 │       ├── iniciar_time_ftn.md         # O arquivo mestre que habilita o comando /iniciar-time-ftn
 │       ├── 1_ProductManager.md         # Fase Zero, Escopo, Negócio e Tabela Mestra de qa-id

@@ -26,7 +26,7 @@ Sempre que o usuário digitar este comando no chat, o ecossistema de agentes esp
     - `.github/workflows/` (`ci-develop.yml`, `ci-staging.yml`, `cd-staging.yml`, `cd-production.yml`, `security-scan.yml`)
     - `docker/doop/` (stack do Doop UI/UX Canvas)
     - `scripts/` (`clickup_sync.js`, `install_doop.sh`)
-    - `.agent/skills/` (todos os perfis `[0-9]*.md` e `iniciar_time_ftn.md`)
+    - `.agents/skills/` (todos os perfis `[0-9]*.md` e `iniciar_time_ftn.md`)
 
 * **Se o workspace atual já for o projeto da aplicação do usuário:**
   * Garanta que as estruturas acima estejam presentes na raiz da aplicação. Caso as pastas (`.spec/`, `docs/`, `.github/`, etc.) já existam, copie e mescle os novos arquivos da governança FTN dentro dessas pastas já criadas, preservando os arquivos preexistentes do projeto.

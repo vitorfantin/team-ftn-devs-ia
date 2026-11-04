@@ -31,6 +31,10 @@ TARGET_APP_DIR=""
 PARAM_AGENTE=""
 PARAM_CLICKUP=""
 PARAM_DOOP=""
+PARAM_DOOP_MODE=""
+PARAM_DOOP_URL=""
+PARAM_DOOP_USER=""
+PARAM_DOOP_PASS=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -58,6 +62,22 @@ while [[ $# -gt 0 ]]; do
             PARAM_DOOP=false
             shift
             ;;
+        --doop-mode)
+            PARAM_DOOP_MODE="$2"
+            shift 2
+            ;;
+        --doop-url)
+            PARAM_DOOP_URL="$2"
+            shift 2
+            ;;
+        --doop-user)
+            PARAM_DOOP_USER="$2"
+            shift 2
+            ;;
+        --doop-pass)
+            PARAM_DOOP_PASS="$2"
+            shift 2
+            ;;
         -d|--dir)
             TARGET_APP_DIR="$2"
             shift 2
@@ -69,8 +89,12 @@ while [[ $# -gt 0 ]]; do
             echo "  -a, --agent <nome>        Seleciona o agente (antigravity, cursor, codex, claude)"
             echo "  --with-clickup            Habilita o ClickUp para gestão visual de tarefas"
             echo "  --no-clickup              Desabilita o ClickUp (rastreamento local via Markdown)"
-            echo "  --with-doop               Habilita o Doop UI/UX Canvas (Docker local/rede)"
+            echo "  --with-doop               Habilita o Doop UI/UX Canvas"
             echo "  --no-doop                 Desabilita o Doop (design specs em Markdown)"
+            echo "  --doop-mode <local|remote> Modo do Doop (local via Docker ou remote via IP/externo)"
+            echo "  --doop-url <url>          URL ou IP do servidor Doop (ex: http://192.168.1.50:3000)"
+            echo "  --doop-user <usuario>     Usuário/e-mail para login no Doop"
+            echo "  --doop-pass <senha>       Senha para login no Doop"
             echo "  -d, --dir <caminho>       Caminho da raiz da aplicação destino"
             echo "  -f, --force, -y, --yes    Execução direta sem confirmações"
             echo "  -h, --help                Exibe esta ajuda"
@@ -185,20 +209,71 @@ fi
 
 # 3. Configuração do Doop UI/UX Canvas (Opcional)
 if [ -z "$PARAM_DOOP" ]; then
-    echo -e "Deseja utilizar o ${BLUE}Doop UI/UX Canvas${NC} (Docker local/rede) para desenho visual de telas e Design System?"
+    echo -e "Deseja utilizar o ${BLUE}Doop UI/UX Canvas${NC} para desenho visual de telas e Design System?"
     echo "1) Sim (Recomendado - prototipagem visual de telas e tokens antes do código)"
     echo "2) Não (Utilizar especificações de telas em Markdown puro)"
     read_input "Escolha uma opção (1 ou 2) [Padrão: 1]: " OPCAO_DOOP
     OPCAO_DOOP="${OPCAO_DOOP:-1}"
     if [[ "$OPCAO_DOOP" =~ ^(1|[Ss]|[Ss][Ii][Mm]|[Yy]|[Yy][Ee][Ss])$ ]]; then
         PARAM_DOOP=true
-        echo -e "✅ Doop UI/UX: ${GREEN}Habilitado (Docker local/rede)${NC}\n"
+        echo -e "✅ Doop UI/UX: ${GREEN}Habilitado${NC}\n"
     else
         PARAM_DOOP=false
         echo -e "ℹ️  Doop UI/UX: ${YELLOW}Desabilitado (Design em Markdown)${NC}\n"
     fi
 else
     echo -e "✅ Doop UI/UX: $([ "$PARAM_DOOP" = "true" ] && echo -e "${GREEN}Habilitado${NC}" || echo -e "${YELLOW}Desabilitado${NC}")\n"
+fi
+
+# Se o Doop estiver habilitado, pergunta sobre modo de instalação e credenciais
+if [ "$PARAM_DOOP" = "true" ]; then
+    # 3.1 Modo de Hospedagem / Acesso do Doop
+    if [ -z "$PARAM_DOOP_MODE" ]; then
+        echo -e "Como você deseja utilizar e hospedar o Doop?"
+        echo "1) Instalar localmente neste computador via Docker (http://localhost:3000) [Padrão]"
+        echo "2) Acessar servidor existente por IP da rede local ou externo (ex: http://192.168.1.50:3000)"
+        read_input "Escolha uma opção (1 ou 2) [Padrão: 1]: " OPCAO_DOOP_MODE
+        OPCAO_DOOP_MODE="${OPCAO_DOOP_MODE:-1}"
+
+        if [[ "$OPCAO_DOOP_MODE" =~ ^(2|[Rr][Ee][Mm][Oo][Tt][Ee]|[Ss][Ee][Rr][Vv][Ii][Dd][Oo][Rr])$ ]]; then
+            PARAM_DOOP_MODE="remote"
+            read_input "Digite a URL completa ou IP com porta do Doop (ex: http://192.168.1.50:3000) [Padrão: http://localhost:3000]: " PARAM_DOOP_URL
+            PARAM_DOOP_URL="${PARAM_DOOP_URL:-http://localhost:3000}"
+            echo -e "✅ Servidor Doop configurado para: ${GREEN}$PARAM_DOOP_URL${NC}\n"
+        else
+            PARAM_DOOP_MODE="local"
+            PARAM_DOOP_URL="http://localhost:3000"
+            echo -e "✅ Instalação local do Doop via Docker selecionada (${GREEN}$PARAM_DOOP_URL${NC})\n"
+        fi
+    else
+        PARAM_DOOP_URL="${PARAM_DOOP_URL:-http://localhost:3000}"
+    fi
+
+    # 3.2 Credenciais de Acesso ao Doop (Usuário e Senha)
+    if [ -z "$PARAM_DOOP_USER" ] && [ -z "$PARAM_DOOP_PASS" ]; then
+        echo -e "Deseja configurar o usuário e senha de acesso ao Doop agora ou deixar para depois?"
+        echo "1) Inserir usuário e senha agora"
+        echo "2) Deixar para depois (configurar no arquivo posteriormente) [Padrão]"
+        read_input "Escolha uma opção (1 ou 2) [Padrão: 2]: " OPCAO_CREDS
+        OPCAO_CREDS="${OPCAO_CREDS:-2}"
+
+        if [[ "$OPCAO_CREDS" =~ ^(1|[Ss]|[Ss][Ii][Mm]|[Yy]|[Yy][Ee][Ss])$ ]]; then
+            read_input "Usuário / E-mail de acesso ao Doop: " PARAM_DOOP_USER
+            read_input "Senha de acesso ao Doop: " PARAM_DOOP_PASS
+            echo -e "✅ Credenciais do Doop registradas!\n"
+        else
+            PARAM_DOOP_USER=""
+            PARAM_DOOP_PASS=""
+            echo -e "ℹ️  Configuração de credenciais postergada."
+            echo -e "📝 Para configurar o usuário e senha mais tarde, edite o arquivo:"
+            echo -e "   👉 ${YELLOW}ftn.config.json${NC} nas chaves ${BLUE}\"doop.username\"${NC} e ${BLUE}\"doop.password\"${NC}"
+            if [ "$PARAM_DOOP_MODE" = "local" ]; then
+                echo -e "   (ou no arquivo ${YELLOW}docker/doop/.env${NC} para inicialização do container).\n"
+            else
+                echo -e "\n"
+            fi
+        fi
+    fi
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -227,7 +302,10 @@ cat << EOF > "$TARGET_APP_DIR/ftn.config.json"
   },
   "doop": {
     "enabled": $PARAM_DOOP,
-    "url": "http://localhost:3000"
+    "mode": "${PARAM_DOOP_MODE:-local}",
+    "url": "${PARAM_DOOP_URL:-http://localhost:3000}",
+    "username": "${PARAM_DOOP_USER:-}",
+    "password": "${PARAM_DOOP_PASS:-}"
   },
   "specDriven": {
     "engine": "@onovoprogramador/onp-spec",
@@ -288,9 +366,14 @@ echo "📝 Copiando constituição e arquitetura base para dentro de .spec/..."
 cp -f "$SOURCE_FILES/.spec/constituicao.md" "$TARGET_APP_DIR/.spec/" 2>/dev/null || true
 cp -f "$SOURCE_FILES/.spec/arquitetura.md" "$TARGET_APP_DIR/.spec/" 2>/dev/null || true
 
-if [ "$PARAM_DOOP" = "true" ]; then
+if [ "$PARAM_DOOP" = "true" ] && [ "$PARAM_DOOP_MODE" = "local" ]; then
     echo "🐳 Copiando stack do Doop UI/UX Canvas para dentro de docker/doop/..."
     cp -rf "$SOURCE_FILES/docker/doop/"* "$TARGET_APP_DIR/docker/doop/" 2>/dev/null || true
+    cat << EOF > "$TARGET_APP_DIR/docker/doop/.env"
+DOOP_PORT=3000
+DOOP_USER=${PARAM_DOOP_USER:-}
+DOOP_PASSWORD=${PARAM_DOOP_PASS:-}
+EOF
 fi
 
 echo "🛠️ Copiando utilitários para dentro de scripts/..."
@@ -305,6 +388,22 @@ fi
 echo -e "\n${GREEN}✨ [FTN DevsIA] Todas as estruturas foram configuradas com sucesso em:${NC}"
 echo -e "👉 ${YELLOW}$TARGET_APP_DIR${NC}"
 echo -e "⚙️  Configuração salva em: ${BLUE}$TARGET_APP_DIR/ftn.config.json${NC}\n"
-echo -e "Comandos disponíveis no chat da sua IA ($PARAM_AGENTE):"
+
+if [ "$PARAM_DOOP" = "true" ]; then
+    if [ "$PARAM_DOOP_MODE" = "local" ]; then
+        echo -e "🐳 ${BLUE}[Doop Local]:${NC} Para subir o container do Doop, execute:"
+        echo -e "   ${YELLOW}docker compose -f docker/doop/docker-compose.yml up -d${NC}"
+    else
+        echo -e "🌐 ${BLUE}[Doop Remoto]:${NC} Apontado para ${YELLOW}$PARAM_DOOP_URL${NC}"
+    fi
+
+    if [ -z "$PARAM_DOOP_USER" ]; then
+        echo -e "📝 ${YELLOW}[Credenciais do Doop]:${NC} Você optou por configurar depois. Quando desejar, edite:"
+        echo -e "   👉 ${BLUE}$TARGET_APP_DIR/ftn.config.json${NC} (\"doop.username\" e \"doop.password\")"
+        [ "$PARAM_DOOP_MODE" = "local" ] && echo -e "   (ou em: $TARGET_APP_DIR/docker/doop/.env)\n"
+    fi
+fi
+
+echo -e "\nComandos disponíveis no chat da sua IA ($PARAM_AGENTE):"
 echo -e "  💬 ${YELLOW}/reuniao-time-ftn${NC} : Convoca a mesa com todos os especialistas para ouvir a demanda do cliente e alinhar dúvidas"
 echo -e "  🚀 ${YELLOW}/iniciar-time-ftn${NC} : Inicializa a governança e o ciclo de desenvolvimento da aplicação"

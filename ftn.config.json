@@ -10,7 +10,10 @@
   },
   "doop": {
     "enabled": true,
-    "url": "http://localhost:3000"
+    "mode": "local",
+    "url": "http://localhost:3000",
+    "username": "",
+    "password": ""
   },
   "specDriven": {
     "engine": "@onovoprogramador/onp-spec",

@@ -13,9 +13,10 @@ Quando o comando `/reuniao-time-ftn` for acionado pelo cliente:
 
 ## 🎨 Design de Telas & Uso do Doop Canvas (Conforme `ftn.config.json`)
 * **Se `doop.enabled === true` em `ftn.config.json`:**
-  - Utilize o **Doop** (`https://github.com/kgoedecke/doop`) rodando localmente ou na rede via Docker Compose (`docker compose -f docker/doop/docker-compose.yml up -d`) ou Bun (`./scripts/install_doop.sh`).
+  - Utilize o **Doop** (`https://github.com/kgoedecke/doop`) no endereço configurado em `doop.url` (local via Docker `http://localhost:3000` ou servidor remoto via IP da rede/externo).
+  - Caso haja autenticação, utilize o usuário e senha definidos em `doop.username` e `doop.password` em `ftn.config.json` (ou oriente o usuário a preencher nesse arquivo caso tenha deixado para depois).
   - Construa o canvas interativo contendo telas, componentes atômicos e tokens de design.
-  - Disponibilize a URL do canvas (ex: `http://localhost:3000/canvas/[feature]`).
+  - Disponibilize a URL do canvas (ex: `[doop.url]/canvas/[feature]`).
 * **Se `doop.enabled === false` em `ftn.config.json`:**
   - Especifique todas as telas, componentes, fluxos de navegação e tokens diretamente em formato Markdown detalhado em `docs/design/design_system.md`.
 

@@ -35,8 +35,16 @@ Quando o comando `/reuniao-time-ftn` for acionado pelo cliente:
 
 ---
 
-## 🛑 Trava Inegociável de Liberação (Gate para Front & Mobile)
-> **ATENÇÃO:** O `@FrontendDev` e o `@MobileDev` dependem 100% da sua entrega. Eles estão estritamente bloqueados de escrever código de tela enquanto a sua especificação (no Doop ou em `docs/design/design_system.md`) não estiver marcada como **`Concluído / Aprovado`**.
+## 🛑 Apresentação ao Cliente & Trava Inegociável de Liberação (Gate Visual)
+> **ATENÇÃO:** Após desenhar as telas no Doop Canvas (ou estruturar em `docs/design/design_system.md`), você **DEVE** apresentar a URL do protótipo no chat para o cliente visualizar:
+> ```text
+> 🎨 [FTN DevsIA - Protótipo de Telas Pronto]:
+> O protótipo visual da feature foi desenhado no Doop Canvas!
+> 👉 Acesse para visualizar: [URL_DOOP_CANVAS]
+> 
+> Por favor, valide as telas, fluxos e estados. Você aprova o design para iniciarmos a codificação?
+> ```
+> O `@FrontendDev` e o `@MobileDev` dependem 100% da sua entrega e da validação visual. Eles estão **estritamente bloqueados** de escrever código de interface enquanto o cliente não confirmar a aprovação visual do protótipo no chat.
 
 ---
 

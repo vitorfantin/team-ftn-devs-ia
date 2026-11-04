@@ -22,7 +22,7 @@ O objetivo da reunião é acolher o que o cliente quer, fazer perguntas estraté
 
 ---
 
-## 🧭 Dinâmica da Reunião em 5 Passos
+## 🧭 Dinâmica Completa do Ciclo de Vida: Do Planejamento ao Deploy
 
 ### 📍 Passo 1: Abertura da Sessão pelo `@ProductManager`
 O `@ProductManager` assume o chat e saúda o cliente:
@@ -88,34 +88,83 @@ O `@ProductManager` realiza as seguintes ações estruturantes:
      - Anexa links da spec e documentações nos cards.
    * **Se `clickup.enabled === false`:**
      - Registra o plano de tarefas técnicas e status diretamente no arquivo local `task.md` e na spec.
-   * **Se `doop.enabled === true`:**
-     - Define o Doop Canvas (`http://localhost:3000/canvas/<feature>`) como o gate visual obrigatório antes do código de tela.
-   * **Se `doop.enabled === false`:**
-     - Define a documentação em `docs/design/design_system.md` como especificação visual base.
+3. **Passagem para o `@TechLead`:**
+   * Define contratos de API, arquitetura técnica e modelagem em `.spec/arquitetura.md`.
 
 ---
 
-### 📍 Passo 5: Dispersão para Execução ("Cada um faz a sua parte")
-A reunião é encerrada e a execução autônoma é disparada sequencialmente pelo **Protocolo de Handoff**:
+### 📍 Passo 5: Prototipagem no Doop & Aprovação Visual do Cliente (Trava Rígida)
+1. O `@UIUXDesigner` assume a responsabilidade visual:
+   * **Se `doop.enabled === true`:** Desenha as telas interativas no **Doop Canvas** (`http://localhost:3000` ou IP configurado em `doop.url`). Mapeia os 5 estados (Inicial, Loading, Sucesso, Vazio e Erro Crítico com `qa-id="btn-error-retry"`).
+   * **Se `doop.enabled === false`:** Desenha e documenta as telas e tokens em `docs/design/design_system.md`.
+2. **Apresentação ao Cliente:**
+   * O `@UIUXDesigner` publica o link do Doop Canvas no chat para visualização:
+     ```text
+     🎨 [FTN DevsIA - Protótipo de Telas Pronto]:
+     O protótipo visual da feature foi desenhado no Doop Canvas!
+     👉 Acesse para visualizar: [URL_DOOP_CANVAS]
+     
+     Por favor, valide as telas, fluxos e estados. Você aprova o design para iniciarmos a codificação?
+     ```
+3. **Trava Rígida de Liberação:**
+   * O `@FrontendDev` e o `@MobileDev` estão **estritamente bloqueados** de codificar telas até o cliente confirmar explicitamente a aprovação visual do protótipo no chat.
 
-1. **`@ProductManager` emite o Handoff inicial para o `@TechLead`:**
-   ```markdown
-   ---
-   ### 🔄 [FTN DevsIA] - Protocolo de Handoff
-   - **De:** @ProductManager
-   - **Para:** @TechLead
-   - **Origem:** Reunião de Alinhamento (/reuniao-time-ftn)
-   - **ClickUp Feature:** [ID/Link ou "Rastreamento Nativo em Markdown"]
-   - **Doop Canvas:** [Ativo ou "Design em docs/design/"]
-   - **Spec Gerada:** `.spec/features/[feature]/spec.md` (Tabela de qa-ids congelada)
-   - **Status:** Homologado pelo Cliente na Reunião
-   - **Ação Requerida:** Assumir Fase 1, definir arquitetura técnica, contratos de API e modelagem Postgres 18.6.
-   ---
-   ```
-2. **A partir daqui, a governança sequencial assume o controle:**
-   - **Fase 1 (`@TechLead`):** Arquitetura e Contratos em `.spec/arquitetura.md` -> Handoff para `@UIUXDesigner` e `@BackendDev`.
-   - **Fase 2 (`@UIUXDesigner`):** Telas e Design System (Doop ou Markdown) -> Gate de aprovação -> Handoff para `@FrontendDev` / `@MobileDev`.
-   - **Fase 3 (`@BackendDev`, `@FrontendDev`, `@MobileDev`):** Implementação atômica em branch com TDD ≥90%, DER vivo atualizado e injeção dos `qa-id`s -> PR aberto para `develop` -> Handoff para `@QATester`.
-   - **Fase 4 (`@QATester`):** Criação dos Casos de Teste em `docs/testes/casos_de_teste/` antes da automação -> Automação E2E sem XPath via `qa-id` -> Aprovação do PR -> Handoff para `@DevOps`.
-   - **Fase 5 (`@DevOps`):** Deploy em Staging com Traefik (SSL + Basic Auth) -> Handoff para `@SecOps`.
-   - **Fase 6 (`@SecOps`):** Auditoria SAST/LGPD (`security-scan.yml`) -> Homologação para Produção.
+---
+
+### 📍 Passo 6: Desenvolvimento Especializado & Automações
+Após a aprovação visual do cliente, os especialistas iniciam o desenvolvimento:
+1. **`@BackendDev`:**
+   * Atualiza o DER vivo em `docs/banco_de_dados/diagrama_er.md` com as novas tabelas/relacionamentos.
+   * Codifica endpoints REST e migrations aplicando TDD (cobertura ≥ 90%), PostgreSQL 18.6 e proteções OWASP.
+2. **`@FrontendDev` / `@MobileDev`:**
+   * Implementam as telas consumindo os tokens do Doop e injetando 100% dos `qa-id`s congelados na spec do ONP.
+   * Aplicam TDD (cobertura ≥ 90%) sem seletores ad-hoc.
+3. **`@QATester` (Regra de Ouro em 2 Etapas):**
+   * **Etapa 4.1:** Documenta primeiro os Casos de Teste em `docs/testes/casos_de_teste/[feature].md` (cenários felizes, tristes e anti-crash `btn-error-retry`).
+   * **Etapa 4.2:** Codifica a automação E2E sem XPath (100% via `qa-id`), valida a pirâmide de testes completa (níveis 1 a 5) e executa testes de carga K6 em `src/__tests__/stress/`.
+
+---
+
+### 📍 Passo 7: Checklist Mestre de Conformidade FTN & Abertura de PR
+Antes de mesclar código ou abrir Pull Request para `develop`/`staging`, a equipe audita o **Checklist Mestre de Conformidade FTN**:
+
+```markdown
+### ✅ Checklist Mestre de Conformidade FTN (Qualidade, Padrões & Segurança)
+- [ ] @ProductManager: Spec ONP (.spec/features/[feature]/spec.md) com US, AC e Tabela Mestra de qa-id congelada.
+- [ ] @TechLead: Arquitetura em .spec/arquitetura.md, banco postgres:18.6, schemas de API e comentários ≤ 2 linhas.
+- [ ] @UIUXDesigner: Telas prototipadas no Doop, 5 estados mapeados e protótipo aprovado visualmente pelo cliente.
+- [ ] @BackendDev: TDD aplicado (cobertura ≥ 90%), DER vivo atualizado em docs/banco_de_dados/diagrama_er.md.
+- [ ] @FrontendDev / @MobileDev: TDD ≥ 90%, 100% dos qa-ids da spec injetados sem seletores ad-hoc.
+- [ ] @QATester: Casos de Teste documentados antes da automação, pirâmide coberta (1 a 5), zero XPath e carga K6.
+- [ ] @SecOps: Higiene do Git aprovada (zero secrets, zero arquivos sensíveis), SAST sem falhas críticas e LGPD.
+```
+
+Estando 100% em conformidade:
+* O desenvolvedor abre o **Pull Request para `develop` / `staging`**, anexando o Checklist Mestre no corpo do PR.
+* O GitHub Actions dispara automaticamente a esteira de CI (`ci-staging.yml` ou `ci-develop.yml`).
+
+---
+
+### 📍 Passo 8: Execução do CI & Trava do Portão Humano (Notificação Obrigatória Pré-Merge)
+Durante a execução das esteiras de CI no GitHub Actions:
+
+1. **PROIBIÇÃO ABSOLUTA DE MERGE AUTOMÁTICO:**
+   * Mesmo que todos os testes passem e a esteira fique 100% verde (✅), **o time de IA NÃO realiza o merge automaticamente**.
+2. **Notificação Formal do Portão Humano ao Usuário:**
+   * O `@QATester` / `@DevOps` emite o alerta no chat:
+     ```text
+     🔔 [FTN DevsIA - Portão Humano de Aprovação]:
+     A esteira de CI/CD passou com 100% de sucesso!
+     Todos os critérios de qualidade e segurança do checklist foram validados.
+     
+     👉 Link do Pull Request: [URL_DO_PR]
+     👉 Checklist de Qualidade: 100% Homologado
+     
+     Por favor, analise as alterações no link acima e responda no chat:
+     "Aprovo o Merge" para autorizar a publicação em Staging/Produção.
+     ```
+3. **Autorização Humana e Deploy:**
+   * O usuário revisa o código no link do PR.
+   * Ao receber o comando explícito do usuário (`"Aprovo o Merge"`), o `@DevOps` realiza o merge para `staging` ou `main`.
+   * A esteira de CD é acionada, publicando no **Docker Swarm com Traefik (SSL + Basic Auth)**.
+   * O `@SecOps` executa a verificação final de segurança (`security-scan.yml`) e emite a homologação de produção.

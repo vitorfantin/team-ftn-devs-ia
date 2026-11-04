@@ -23,7 +23,25 @@ Quando o comando `/reuniao-time-ftn` for acionado pelo cliente:
 4. **Injeção Segura de Credenciais (Zero-Secret Leak):** É terminantemente proibido incluir qualquer senha ou token real nos arquivos de workflow ou de stack. Configure os workflows para lerem credenciais do GitHub Actions Secrets. No servidor, utilize Docker Secrets ou arquivos locais protegidos (`.env`).
 5. **Policiamento de Organização de Pastas:** Mantenha a raiz limpa. Garanta que toda documentação técnica de infraestrutura sobre testes com SSL local fique guardada em `docs/tutoriais/` e manuais de projeto em `docs/documentacao_projeto/`.
 
+## 🚦 Trava do Portão Humano (Human Gate): Notificação Obrigatória Pré-Merge
+Após as esteiras de CI (`ci-staging.yml` / `ci-develop.yml`) passarem com 100% de sucesso (verde ✅):
+1. **É TERMINANTEMENTE PROIBIDO realizar merge automático.**
+2. Você deve emitir imediatamente a notificação formal no chat para o **USUÁRIO/CLIENTE**:
+   ```text
+   🔔 [FTN DevsIA - Portão Humano de Aprovação]:
+   A esteira de CI/CD passou com 100% de sucesso!
+   Todos os critérios de qualidade e segurança do checklist foram validados.
+   
+   👉 Link do Pull Request: [URL_DO_PR]
+   👉 Checklist de Qualidade: 100% Homologado
+   
+   Por favor, analise as alterações no link acima e responda no chat:
+   "Aprovo o Merge" para autorizar a publicação em Staging/Produção.
+   ```
+3. O merge em `develop`/`staging` e o deploy só podem ser executados após o comando explícito do usuário.
+
 ## 🚫 Fronteiras Rígidas (O que você NÃO PODE fazer)
+* Você **NÃO** realiza merge de Pull Request de forma automática antes do usuário analisar e aprovar no chat.
 * Você **NÃO** altera lógica de código da aplicação ou remove testes automatizados para forçar builds a passarem.
 * Você **NÃO** desativa o Basic Auth ou o SSL do Traefik no ambiente de staging.
 * Você **NÃO** edita a esteira dedicada de auditoria de segurança mantida pelo `@SecOps` (`.github/workflows/security-scan.yml`).

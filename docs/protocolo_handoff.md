@@ -14,7 +14,7 @@ Este documento define o contrato inegociável de transição de tarefas entre os
 6. **Cobertura Integral da Pirâmide de Testes:** Todo o ciclo deve cobrir rigorosamente todos os níveis da pirâmide de testes de software ([`docs/testes/piramide_de_testes.md`](file:///Users/vitorfantin/.gemini/antigravity/worktrees/team-ftn-devs-ia/analise_designacao_tarefas_especificas/docs/testes/piramide_de_testes.md)): Unitários (Nível 1), Componentes (Nível 2), Integração (Nível 3), Contratos de API (Nível 4) e E2E sem XPath (Nível 5).
 7. **Modularidade Opcional (`ftn.config.json`):**
    * **ClickUp:** Se `clickup.enabled === true`, features, subtarefas e status são sincronizados no ClickUp ([`docs/tutoriais/integracao_clickup.md`](file:///Users/vitorfantin/.gemini/antigravity/worktrees/team-ftn-devs-ia/analise_designacao_tarefas_especificas/docs/tutoriais/integracao_clickup.md)). Se `false`, o rastreamento é 100% nativo em Markdown (`task.md` e `.spec/features/`).
-   * **Doop UI/UX Canvas:** Se `doop.enabled === true`, o Doop Canvas (`http://localhost:3000`) é a ferramenta padrão de desenho de telas e Design System. Se `false`, o design é documentado diretamente em Markdown em `docs/design/design_system.md`.
+   * **Doop UI/UX Canvas:** Se `doop.enabled === true`, o Doop Canvas (`http://localhost:3000` ou IP configurado) é a ferramenta padrão de desenho de telas e Design System. Se `false`, o design é documentado diretamente em Markdown em `docs/design/design_system.md`.
 
 ---
 
@@ -24,10 +24,10 @@ Este documento define o contrato inegociável de transição de tarefas entre os
 | :---: | :--- | :--- | :--- | :--- | :--- |
 | **0** | `@ProductManager` | Solicitação do cliente (`/reuniao-time-ftn` ou `/iniciar-time-ftn`) | Cria Feature (ClickUp ou `task.md`), anexa links da spec e quebra subtarefas técnicas ([TL], [UI/UX], [BACK], [FRONT/MOB]). | `.spec/constituicao.md`<br>`.spec/features/[feature]/spec.md` | `@TechLead` |
 | **1** | `@TechLead` | `.spec/features/[feature]/spec.md` | Assume card [TL], anexa arquitetura técnica, contratos de API e metas de stress. | `.spec/arquitetura.md` | `@UIUXDesigner` & `@BackendDev` |
-| **2** | `@UIUXDesigner` | `.spec/features/[feature]/spec.md`<br>`.spec/arquitetura.md` | Assume card [UI/UX]. Desenha telas (no Doop se ativo ou em Markdown), mapeia 5 estados e fallback anti-crash. | `docs/design/design_system.md`<br>Doop Canvas URL (se ativo) | `@FrontendDev` ou `@MobileDev`<br>*(Trava Rígida: Front/Mobile bloqueados até UI/UX estar pronta)* |
+| **2** | `@UIUXDesigner` | `.spec/features/[feature]/spec.md`<br>`.spec/arquitetura.md` | Assume card [UI/UX]. Desenha telas (no Doop se ativo ou em Markdown), mapeia 5 estados e fallback anti-crash. Apresenta ao cliente para aprovação. | `docs/design/design_system.md`<br>Doop Canvas URL (se ativo) | `@FrontendDev` ou `@MobileDev`<br>*(Trava Rígida: Front/Mobile bloqueados até UI/UX aprovada pelo cliente)* |
 | **3** | `@BackendDev`<br>`@FrontendDev`<br>`@MobileDev` | Specs de Produto, Arquitetura, Design e DER | Assumem cards. Backend atualiza DER vivo (`docs/banco_de_dados/diagrama_er.md`), devs codificam TDD ≥90%, abrem PR para `develop`. | Pull Request aberto para `develop`<br>`docs/banco_de_dados/diagrama_er.md` atualizado | `@QATester` |
-| **4** | `@QATester` | PR aberto + Tabela de `qa-id` da spec | 1. Registra Casos de Teste (`docs/testes/casos_de_teste/`).<br>2. Automatiza E2E sem XPath via `qa-id` e valida pirâmide de testes. | `docs/testes/casos_de_teste/[feature].md`<br>Suíte E2E automatizada e PR aprovado | `@DevOps` (se aprovado) |
-| **5** | `@DevOps` | Merge aprovado em `develop` ou `staging` | Publica em Staging no Docker Swarm com Traefik (SSL + Basic Auth). | Deploy ativo em staging | `@SecOps` |
+| **4** | `@QATester` | PR aberto + Tabela de `qa-id` da spec | 1. Registra Casos de Teste (`docs/testes/casos_de_teste/`).<br>2. Automatiza E2E sem XPath via `qa-id`, roda testes e anexa o Checklist FTN. | `docs/testes/casos_de_teste/[feature].md`<br>Suíte E2E automatizada e PR aprovado | `@DevOps` (se aprovado) |
+| **5** | `@DevOps` | CI aprovado em `develop` | Valida esteira de CI. **Aciona o Portão Humano (avisa o usuário para analisar PR)**. Após aprovação humana do merge, publica em Staging. | Deploy ativo em staging | `@SecOps` |
 | **6** | `@SecOps` | Deploy ativo e código mesclado | Executa esteira dedicada `security-scan.yml` (nos projetos de destino), anexa relatório de auditoria e homologa para produção. | `docs/auditoria/security-report.md` | Ciclo concluído |
 
 ---
@@ -72,3 +72,37 @@ Para erradicar o conflito entre o código dos desenvolvedores e as automações 
 O `@QATester` deve seguir rigorosamente a sequência de 2 etapas na Fase 4:
 1. **Etapa 4.1 (Planejamento & Estruturação):** Criar e salvar `docs/testes/casos_de_teste/[feature].md` cobrindo cenários positivos (caminho feliz), negativos (caminho triste/validações) e anti-crash (`qa-id="btn-error-retry"`), rastreados pelos `qa-id`s da spec.
 2. **Etapa 4.2 (Codificação da Automação):** Apenas após documentar os casos de teste, codificar os scripts de automação E2E (Playwright, Cypress, Flutter Integration), implementando fielmente cada caso planejado.
+
+---
+
+## ✅ Checklist Mestre de Conformidade FTN (Qualidade, Padrões & Segurança)
+
+Todo Pull Request aberto para `develop` ou `staging` deve anexar no corpo do PR e reportar no chat este checklist rigorosamente auditado:
+
+- [ ] **@ProductManager:** Spec ONP (`.spec/features/[feature]/spec.md`) com Histórias (`US`), Critérios de Aceite (`AC`) e Tabela Mestra de `qa-id` congelada.
+- [ ] **@TechLead:** Arquitetura documentada em `.spec/arquitetura.md`, banco estático `postgres:18.6`, schemas de API e comentários ≤ 2 linhas.
+- [ ] **@UIUXDesigner:** Telas prototipadas no Doop (ou Markdown), 5 estados mapeados e fallback anti-crash (`qa-id="btn-error-retry"`) **aprovado visualmente pelo cliente**.
+- [ ] **@BackendDev:** TDD aplicado (cobertura ≥ 90%), DER vivo atualizado em `docs/banco_de_dados/diagrama_er.md`, migrations validadas e OWASP aplicado.
+- [ ] **@FrontendDev / @MobileDev:** TDD ≥ 90%, 100% dos `qa-id`s da spec injetados sem seletores ad-hoc.
+- [ ] **@QATester:** Casos de Teste documentados em `docs/testes/casos_de_teste/` antes da automação, pirâmide coberta (unitário, integração, contrato, E2E), zero XPath e teste de carga K6.
+- [ ] **@SecOps:** Higiene do Git aprovada (zero secrets, zero arquivos sensíveis), auditoria SAST (`npm audit`) sem falhas críticas e conformidade LGPD.
+
+---
+
+## 🚦 Trava do Portão Humano (Human Gate): Notificação Obrigatória Pré-Merge
+
+Após o Pull Request ser aberto e todas as esteiras de CI passarem com sucesso (verde ✅):
+1. **É TERMINANTEMENTE PROIBIDO realizar merge automático.**
+2. O `@QATester` / `@DevOps` deve emitir a notificação formal no chat para o **USUÁRIO/CLIENTE**:
+   ```text
+   🔔 [FTN DevsIA - Portão Humano de Aprovação]:
+   A esteira de CI/CD passou com 100% de sucesso!
+   Todos os critérios de qualidade e segurança do checklist foram validados.
+   
+   👉 Link do Pull Request: [URL_DO_PR]
+   👉 Checklist de Qualidade: 100% Homologado
+   
+   Por favor, analise as alterações no link acima e responda no chat:
+   "Aprovo o Merge" para autorizar a publicação em Staging/Produção.
+   ```
+3. O merge e o deploy só prosseguem após o comando explícito de aprovação do usuário no chat.

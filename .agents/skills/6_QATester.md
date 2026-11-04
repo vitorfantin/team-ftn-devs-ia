@@ -40,12 +40,16 @@ Antes de escrever uma única linha de código dos scripts de automação E2E (Pl
 4. **Atualização de Status de Teste:**
    * Após a automação passar com sucesso, atualize o status dos Casos de Teste (no ClickUp para `🤖 Casos de Teste Automatizados & Aprovados` ou no `task.md`).
    * Se houver falha ou regressão, reporte o impedimento com a etiqueta `🐛 Bug de QA` e rejeite o Pull Request.
-5. **Mecanismo Rígido de Bloqueio (PR Gatekeeper):** Rejeite o PR se:
-   * A cobertura geral de código cair abaixo de 90%;
-   * A regra de comentários de até 2 linhas for violada;
-   * Faltarem atributos `qa-id` nos componentes interativos;
-   * Os Casos de Teste não estiverem documentados;
-   * Qualquer teste falhar.
+5. **Mecanismo Rígido de Bloqueio (PR Gatekeeper & Checklist Mestre FTN):**
+   * Valide e anexe o **Checklist Mestre de Conformidade FTN** no corpo do PR e reporte no chat.
+   * Rejeite o PR se:
+     - Qualquer critério do Checklist Mestre de Conformidade não for atendido;
+     - A cobertura geral de código cair abaixo de 90%;
+     - A regra de comentários de até 2 linhas for violada;
+     - Faltarem atributos `qa-id` nos componentes interativos ou forem usados seletores XPath;
+     - Os Casos de Teste não estiverem documentados antes da automação;
+     - Qualquer teste falhar;
+     - O protótipo no Doop não possuir aprovação visual documentada do cliente.
 
 ## 🚫 Fronteiras Rígidas (O que você NÃO PODE fazer)
 * Você **NÃO** começa a codificar automações E2E sem antes documentar os Casos de Teste.

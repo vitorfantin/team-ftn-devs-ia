@@ -24,17 +24,17 @@ Este ecossistema garante de forma intransponível:
 Para eliminar ambiguidades e sobreposições, a execução segue uma esteira sequencial orientada a artefatos e cards do ClickUp:
 
 ```text
-[Fase 0: @ProductManager]  ──► Cria Feature & Subtarefas no ClickUp + .spec/constituicao.md
+[Fase 0: @ProductManager]  ──► Reunião (/reuniao-time-ftn), Spec ONP + Tabela de qa-ids
          │
-[Fase 1: @TechLead]        ──► Assume card [TL], anexa .spec/arquitetura.md e refina subtarefas
+[Fase 1: @TechLead]        ──► Arquitetura, Contratos e Postgres 18.6 em .spec/arquitetura.md
          │
-[Fase 2: @UIUXDesigner]    ──► Projeta no Doop Canvas (Local/Rede), gera docs/design/ e homologa no ClickUp
+[Fase 2: @UIUXDesigner]    ──► Projeta no Doop Canvas (Local/Rede) e APROVAÇÃO VISUAL DO CLIENTE
          │
-[Fase 3: @Devs (Front/Mob/Back)] ──► Back atualiza DER vivo, Front/Mob iniciam pós-Doop, TDD ≥90% e PR
+[Fase 3: @Devs (Front/Mob/Back)] ──► Back atualiza DER vivo, Front/Mob pós-Doop, TDD ≥90% e PR
          │
-[Fase 4: @QATester]        ──► 1º Registra Casos no ClickUp ➔ 2º Automatiza E2E e Aprova
+[Fase 4: @QATester]        ──► 1º Casos de Teste ➔ 2º E2E sem XPath ➔ 3º Checklist Mestre FTN
          │
-[Fase 5: @DevOps]          ──► Publica em Staging Swarm e comenta URL segura no ClickUp
+[Fase 5: @DevOps]          ──► Valida CI ➔ PORTÃO HUMANO (Avisa Usuário) ➔ Merge & Deploy Swarm
          │
 [Fase 6: @SecOps]          ──► Roda security-scan.yml, anexa relatório e homologa no ClickUp
 ```
@@ -75,7 +75,10 @@ Use este comando para convocar **todos os especialistas do time** para uma mesa 
 * O `@ProductManager` abre a reunião e ouve o que o cliente/usuário deseja construir;
 * Cada especialista (@TechLead, @UIUXDesigner, @BackendDev, @FrontendDev, @MobileDev, @QATester, @DevOps, @SecOps) faz perguntas pontuais para entender profundamente as regras, telas, dados e riscos;
 * Com tudo alinhado e homologado pelo cliente, o PM gera a spec no padrão ONP (`npx onp-spec new <feature>`) com histórias, critérios de aceite e tabela de `qa-id`s;
-* O time se dispersa e **cada especialista executa a sua parte** rigorosamente através do [Protocolo de Handoff](file:///Users/vitorfantin/.gemini/antigravity/worktrees/team-ftn-devs-ia/analise_designacao_tarefas_especificas/docs/protocolo_handoff.md).
+* O `@UIUXDesigner` desenha as telas no **Doop Canvas** (local ou remoto) e publica o link no chat para **aprovação visual do cliente** (trava inegociável antes de Front/Mobile);
+* Cada especialista executa sua parte com TDD ≥90% e DER vivo;
+* Antes do merge, é auditado o **Checklist Mestre de Conformidade FTN** (Qualidade e Segurança) e aberto o PR;
+* Quando o CI passa com 100% de sucesso, a **Trava do Portão Humano** avisa o usuário no chat com o link do PR para análise antes do merge!
 
 #### 🚀 `/iniciar-time-ftn` (Inicialização da Governança do Projeto)
 Use este comando na primeira vez para validar as estruturas instaladas na aplicação, configurar a `.spec/constituicao.md` e alinhar escopo de legado.

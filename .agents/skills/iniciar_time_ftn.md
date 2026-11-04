@@ -53,25 +53,30 @@ Sempre que o usuário digitar este comando no chat, o ecossistema de agentes esp
    * Emite Handoff para `@UIUXDesigner` e `@BackendDev`.
 
 3. **Fase 2 - `@UIUXDesigner`:**
-   * Assume alçada visual. Se Doop ativo em `ftn.config.json`, desenha no **Doop Canvas** (`http://localhost:3000`). Se desativado, especifica em Markdown em `docs/design/design_system.md`.
+   * Assume alçada visual. Se Doop ativo em `ftn.config.json`, desenha no **Doop Canvas** (`http://localhost:3000` ou IP configurado). Se desativado, especifica em Markdown em `docs/design/design_system.md`.
    * Mapeia os 5 estados de tela, tokens e fallback anti-crash (`qa-id="btn-error-retry"`).
-   * *(Trava Rígida: `@FrontendDev` e `@MobileDev` só são liberados após aprovação da UI/UX)*.
-   * Emite Handoff para `@FrontendDev` e/ou `@MobileDev`.
+   * **Trava Visual do Cliente:** Publica a URL do protótipo no chat. `@FrontendDev` e `@MobileDev` ficam estritamente bloqueados até o cliente aprovar visualmente o protótipo.
+   * Após a aprovação do cliente, emite Handoff para `@FrontendDev` e/ou `@MobileDev`.
 
 4. **Fase 3 - `@FrontendDev` / `@MobileDev` / `@BackendDev`:**
    * Assumem o desenvolvimento. O `@BackendDev` atualiza o DER vivo em `docs/banco_de_dados/diagrama_er.md` a cada migration.
    * Desenvolvem em branches atômicas `feature/*` cobrindo a Pirâmide de Testes (TDD ≥90%, comentários ≤2 linhas e `qa-id`s da spec).
-   * Abrem Pull Request para a branch `develop` e emitem Handoff para `@QATester`.
+   * Abrem Pull Request para a branch `develop` anexando o Checklist Mestre de Conformidade FTN e emitem Handoff para `@QATester`.
 
 5. **Fase 4 - `@QATester`:**
    * **Etapa 4.1 (Planejamento):** Estrutura e salva os Casos de Teste em `docs/testes/casos_de_teste/`.
    * **Etapa 4.2 (Automação da Pirâmide):** Valida contratos de API (Nível 4), codifica automações E2E sem XPath via `qa-id` (Nível 5) e executa testes de stress K6 em `src/__tests__/stress/`.
-   * Aprova merge para `staging` e emite Handoff para `@DevOps`.
+   * Audita o **Checklist Mestre de Conformidade FTN** no PR.
+   * Emite Handoff para `@DevOps`.
 
-6. **Fase 5 - `@DevOps`:**
-   * Publica no Docker Swarm com Traefik (SSL + Basic Auth) no subdomínio isolado de homologação.
+6. **Fase 5 - `@DevOps` (Trava do Portão Humano):**
+   * Valida as esteiras de CI (`ci-staging.yml` / `ci-develop.yml`).
+   * **TRAVA OBRIGATÓRIA:** Se a esteira estiver 100% verde (aprovada), **NÃO faz merge automático**. Notifica o usuário no chat com o link do PR para análise humana.
+   * Após o usuário digitar "Aprovo o Merge", realiza o merge e publica no Docker Swarm com Traefik (SSL + Basic Auth).
    * Emite Handoff para `@SecOps`.
 
 7. **Fase 6 - `@SecOps`:**
+   * Executa a esteira `security-scan.yml` (no projeto da aplicação), audita integridade de segredos e hashes.
+   * Anexa o relatório `docs/auditoria/security-report.md` e homologa o status final para `🛡️ SecOps Homologado (Pronto para Produção)`.
    * Executa a esteira `security-scan.yml` (no projeto da aplicação), audita integridade de segredos e hashes.
    * Anexa o relatório `docs/auditoria/security-report.md` e homologa o status final para `🛡️ SecOps Homologado (Pronto para Produção)`.

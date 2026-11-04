@@ -1,6 +1,9 @@
 {
-  "version": "1.1.1",
+  "version": "1.1.8",
   "agent": "antigravity",
+  "cicd": {
+    "enabled": true
+  },
   "clickup": {
     "enabled": true,
     "apiToken": "",

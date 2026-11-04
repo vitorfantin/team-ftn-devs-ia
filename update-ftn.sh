@@ -14,7 +14,21 @@ NC='\033[0m'
 echo -e "${GREEN}🔄 [FTN DevsIA] Assistente de Atualização da Governança na Aplicação${NC}\n"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)"
-TARGET_APP_DIR="${1:-$PWD}"
+
+TARGET_APP_DIR=""
+EXTRA_ARGS=()
+
+for arg in "$@"; do
+    if [[ "$arg" == -* ]]; then
+        EXTRA_ARGS+=("$arg")
+    elif [ -z "$TARGET_APP_DIR" ]; then
+        TARGET_APP_DIR="$arg"
+    else
+        EXTRA_ARGS+=("$arg")
+    fi
+done
+
+TARGET_APP_DIR="${TARGET_APP_DIR:-$PWD}"
 
 # Se executado dentro do repositório matriz, orienta o usuário
 if [ -f "$TARGET_APP_DIR/8_SecOps.md" ] && [ -f "$TARGET_APP_DIR/1_ProductManager.md" ]; then
@@ -42,7 +56,7 @@ else
     INSTALLER_SCRIPT="$TEMP_INSTALLER"
 fi
 
-bash "$INSTALLER_SCRIPT" "$TARGET_APP_DIR" --update
+bash "$INSTALLER_SCRIPT" "$TARGET_APP_DIR" --update "${EXTRA_ARGS[@]}"
 
 if [ -n "$TEMP_INSTALLER" ] && [ -f "$TEMP_INSTALLER" ]; then
     rm -f "$TEMP_INSTALLER"

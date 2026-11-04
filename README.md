@@ -71,10 +71,11 @@ Se você já possui um projeto com o FTN DevsIA instalado e quer atualizar para 
 *(ou `./install-ftn.sh --update`)*
 
 > **🔒 Garantia de Preservação em Produção:**
-> A atualização atualiza todas as 25 skills (`.agents/skills/`), esteiras de CI/CD (`.github/workflows/`), protocolo de handoff e constituição, mas **PRESERVA INTACTOS**:
-> - Seus tokens, chaves de API e credenciais do ClickUp e Doop em `ftn.config.json`;
-> - Todo o código-fonte da aplicação (`src/`, `lib/`, `tests/`);
-> - Todas as features, especificações e casos de teste existentes (`.spec/features/` e `docs/testes/casos_de_teste/`).
+> A atualização renova todas as 25 skills (`.agents/skills/`), protocolo de handoff, tutoriais e constituição, mas **PRESERVA INTACTOS**:
+> - **Suas esteiras de CI/CD:** O atualizador pergunta interativamente se você deseja atualizar os workflows (opção padrão: **Não sobrescrever**, preservando suas esteiras existentes). Você também pode usar `--no-cicd` ou `--with-cicd`;
+> - **Configurações e Segredos:** Seus tokens, chaves de API e credenciais do ClickUp e Doop em `ftn.config.json`;
+> - **Código-fonte:** Todo o código da aplicação (`src/`, `lib/`, `tests/`);
+> - **Histórico e Features:** Todas as especificações, histórias e casos de teste existentes (`.spec/features/` e `docs/testes/casos_de_teste/`).
 
 ---
 
@@ -84,6 +85,13 @@ Se você clonou o `team-ftn-devs-ia` na sua máquina, informe o caminho da sua a
 ./install-ftn.sh /caminho/absoluto/da/sua-aplicacao
 ```
 *(Para atualizar uma aplicação existente localmente: `./install-ftn.sh /caminho/da/aplicacao --update`).*
+
+> **Flags Opcionais de Automação / Não-Interativo:**
+> - `--with-cicd`: Importa/atualiza as esteiras modulares de CI/CD (`.github/workflows/`).
+> - `--no-cicd`: Não importa nem altera as esteiras de CI/CD (mantém intactas as do seu projeto).
+> - `--with-clickup` / `--no-clickup`: Habilita ou desabilita integração com ClickUp.
+> - `--with-doop` / `--no-doop`: Habilita ou desabilita o Doop UI/UX Canvas.
+> - `-a <antigravity|cursor|codex|claude>`: Pré-seleciona a IA alvo.
 
 ---
 
@@ -205,9 +213,12 @@ Antes do merge, o time audita a conformidade completa:
 
 ---
 
-## ⚙️ Configuração Modular: ClickUp e Doop Opcionais (`ftn.config.json`)
+## ⚙️ Configuração Modular: CI/CD, ClickUp e Doop Opcionais (`ftn.config.json`)
 
 O instalador `install-ftn.sh` pergunta interativamente as preferências do seu projeto e salva em `ftn.config.json`:
+* **Esteiras de CI/CD Modulares (Opcionais na Instalação e Atualização):**
+  - **Instalação:** Pergunta se deseja importar os fluxos do GitHub Actions (`.github/workflows/`). Se o projeto já tiver esteiras próprias ou você preferir configurar manualmente, basta escolher **Não** (ou `--no-cicd`).
+  - **Atualização:** Na atualização, a opção padrão é **Preservar intactas as esteiras existentes** da aplicação (opção 2 - Não). Se desejar sincronizar com as novidades da matriz, escolha **Sim** (ou `--with-cicd`).
 * **ClickUp (Opcional):**
   - **Habilitado:** Cria cards de features, quebra subtarefas técnicas automáticas e sincroniza status (`docs/tutoriais/integracao_clickup.md`).
   - **Desabilitado:** Gerenciamento ágil 100% nativo em arquivos Markdown (`task.md` e `.spec/features/`).

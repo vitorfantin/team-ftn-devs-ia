@@ -35,6 +35,7 @@ PARAM_DOOP_MODE=""
 PARAM_DOOP_URL=""
 PARAM_DOOP_USER=""
 PARAM_DOOP_PASS=""
+PARAM_CICD=""
 PARAM_UPDATE=false
 
 while [[ $# -gt 0 ]]; do
@@ -65,6 +66,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --no-doop)
             PARAM_DOOP=false
+            shift
+            ;;
+        --with-cicd|--cicd)
+            PARAM_CICD=true
+            shift
+            ;;
+        --no-cicd)
+            PARAM_CICD=false
             shift
             ;;
         --doop-mode)
@@ -101,6 +110,8 @@ while [[ $# -gt 0 ]]; do
             echo "  --doop-url <url>          URL ou IP do servidor Doop (ex: http://192.168.1.50:3000)"
             echo "  --doop-user <usuario>     Usuário/e-mail para login no Doop"
             echo "  --doop-pass <senha>       Senha para login no Doop"
+            echo "  --with-cicd               Importa/atualiza as esteiras modulares de CI/CD em .github/workflows/"
+            echo "  --no-cicd                 Não importa nem altera as esteiras de CI/CD (preserva as suas)"
             echo "  -d, --dir <caminho>       Caminho da raiz da aplicação destino"
             echo "  -f, --force, -y, --yes    Execução direta sem confirmações"
             echo "  -h, --help                Exibe esta ajuda"
@@ -188,6 +199,24 @@ if [ "$PARAM_UPDATE" = "true" ]; then
         PARAM_AGENTE=$(grep -o '"agent": *"[^"]*"' "$TARGET_APP_DIR/ftn.config.json" 2>/dev/null | cut -d'"' -f4)
     fi
     PARAM_AGENTE="${PARAM_AGENTE:-antigravity}"
+
+    # Pergunta sobre as esteiras de CI/CD na atualização
+    if [ -z "$PARAM_CICD" ]; then
+        echo -e "Deseja atualizar/sobrescrever as esteiras de CI/CD (${BLUE}.github/workflows/${NC}) com os workflows oficiais da matriz?"
+        echo "1) Sim (Atualizar/sobrescrever esteiras em .github/workflows/)"
+        echo "2) Não (Recomendado na atualização - Preservar esteiras existentes da aplicação intactas) [Padrão: 2]"
+        read_input "Escolha uma opção (1 ou 2) [Padrão: 2]: " OPCAO_CICD_UPDATE
+        OPCAO_CICD_UPDATE="${OPCAO_CICD_UPDATE:-2}"
+        if [[ "$OPCAO_CICD_UPDATE" =~ ^(1|[Ss]|[Ss][Ii][Mm]|[Yy]|[Yy][Ee][Ss])$ ]]; then
+            PARAM_CICD=true
+            echo -e "✅ Esteiras de CI/CD: ${GREEN}Serão atualizadas${NC}\n"
+        else
+            PARAM_CICD=false
+            echo -e "ℹ️  Esteiras de CI/CD: ${YELLOW}Preservadas intactas (nenhuma esteira existente será sobrescrita)${NC}\n"
+        fi
+    else
+        echo -e "✅ Esteiras de CI/CD: $([ "$PARAM_CICD" = "true" ] && echo -e "${GREEN}Atualizar${NC}" || echo -e "${YELLOW}Preservar existentes intactas${NC}")\n"
+    fi
 else
     echo -e "${GREEN}[2/3] Configurações de Stack & Ferramentas Opcionais:${NC}"
 
@@ -309,6 +338,24 @@ if [ "$PARAM_DOOP" = "true" ]; then
         fi
     fi
 fi
+
+    # 4. Configuração das Esteiras de CI/CD (Opcional)
+    if [ -z "$PARAM_CICD" ]; then
+        echo -e "Deseja importar as esteiras oficiais modulares de CI/CD (${BLUE}.github/workflows/${NC})?"
+        echo "1) Sim (Recomendado - importa linters, testes TDD, SAST e gatekeeper de deploy) [Padrão: 1]"
+        echo "2) Não (Já possuo esteiras próprias no projeto ou configurarei manualmente)"
+        read_input "Escolha uma opção (1 ou 2) [Padrão: 1]: " OPCAO_CICD_INSTALL
+        OPCAO_CICD_INSTALL="${OPCAO_CICD_INSTALL:-1}"
+        if [[ "$OPCAO_CICD_INSTALL" =~ ^(1|[Ss]|[Ss][Ii][Mm]|[Yy]|[Yy][Ee][Ss])$ ]]; then
+            PARAM_CICD=true
+            echo -e "✅ Esteiras de CI/CD: ${GREEN}Habilitadas para importação${NC}\n"
+        else
+            PARAM_CICD=false
+            echo -e "ℹ️  Esteiras de CI/CD: ${YELLOW}Desabilitadas (nenhum arquivo .github/workflows/ será criado ou sobrescrito)${NC}\n"
+        fi
+    else
+        echo -e "✅ Esteiras de CI/CD: $([ "$PARAM_CICD" = "true" ] && echo -e "${GREEN}Habilitadas${NC}" || echo -e "${YELLOW}Desabilitadas${NC}")\n"
+    fi
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -325,13 +372,16 @@ npx --yes @onovoprogramador/onp-spec init --agents "$PARAM_AGENTE" 2>/dev/null |
 # Salva ou atualiza a configuração de governança FTN (ftn.config.json)
 if [ "$PARAM_UPDATE" = "true" ] && [ -f "$TARGET_APP_DIR/ftn.config.json" ]; then
     echo "🔒 Preservando configurações existentes e atualizando versão em ftn.config.json..."
-    sed -i.bak 's/"version": *"[^"]*"/"version": "1.1.6"/' "$TARGET_APP_DIR/ftn.config.json" 2>/dev/null && rm -f "$TARGET_APP_DIR/ftn.config.json.bak" 2>/dev/null || true
+    sed -i.bak 's/"version": *"[^"]*"/"version": "1.1.8"/' "$TARGET_APP_DIR/ftn.config.json" 2>/dev/null && rm -f "$TARGET_APP_DIR/ftn.config.json.bak" 2>/dev/null || true
 else
     echo "⚙️ Salvando configurações em ftn.config.json..."
     cat << EOF > "$TARGET_APP_DIR/ftn.config.json"
 {
-  "version": "1.1.6",
+  "version": "1.1.8",
   "agent": "$PARAM_AGENTE",
+  "cicd": {
+    "enabled": ${PARAM_CICD:-true}
+  },
   "clickup": {
     "enabled": ${PARAM_CLICKUP:-false},
     "apiToken": "",
@@ -375,7 +425,7 @@ mkdir -p "$TARGET_APP_DIR/docker/doop"
 mkdir -p "$TARGET_APP_DIR/.spec/features"
 mkdir -p "$TARGET_APP_DIR/.spec/verification"
 mkdir -p "$TARGET_APP_DIR/.agents/skills"
-mkdir -p "$TARGET_APP_DIR/.github/workflows"
+[ "$PARAM_CICD" = "true" ] && mkdir -p "$TARGET_APP_DIR/.github/workflows"
 mkdir -p "$TARGET_APP_DIR/scripts"
 
 # Determina a origem dos arquivos (local ou clone remoto temporário via curl)
@@ -396,8 +446,13 @@ cp -f "$SOURCE_FILES"/[0-9]*.md "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null ||
 cp -f "$SOURCE_FILES/.agents/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || \
 cp -f "$SOURCE_FILES/.agent/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 
-echo "⚙️ Copiando esteiras modulares de CI/CD para dentro de .github/workflows/..."
-cp -rf "$SOURCE_FILES/.github/workflows/"* "$TARGET_APP_DIR/.github/workflows/" 2>/dev/null || true
+if [ "$PARAM_CICD" = "true" ]; then
+    echo "⚙️ Copiando esteiras modulares de CI/CD para dentro de .github/workflows/..."
+    mkdir -p "$TARGET_APP_DIR/.github/workflows"
+    cp -rf "$SOURCE_FILES/.github/workflows/"* "$TARGET_APP_DIR/.github/workflows/" 2>/dev/null || true
+else
+    echo "⏭️  Esteiras de CI/CD ignoradas (arquivos existentes preservados intactos)."
+fi
 
 echo "📂 Copiando central de governança e documentação para dentro de docs/..."
 cp -rf "$SOURCE_FILES/docs/"* "$TARGET_APP_DIR/docs/" 2>/dev/null || true
@@ -431,10 +486,14 @@ if [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ]; then
 fi
 
 if [ "$PARAM_UPDATE" = "true" ]; then
-    echo -e "\n🎉 ${GREEN}✨ [FTN DevsIA] Atualização concluída com sucesso! (v1.1.6)${NC}"
+    echo -e "\n🎉 ${GREEN}✨ [FTN DevsIA] Atualização concluída com sucesso! (v1.1.8)${NC}"
     echo -e "📁 Aplicação: ${YELLOW}$TARGET_APP_DIR${NC}"
     echo -e "✅ Todas as 25 skills atualizadas em: ${BLUE}$TARGET_APP_DIR/.agents/skills/${NC}"
-    echo -e "✅ Esteiras modulares de CI/CD atualizadas em: ${BLUE}$TARGET_APP_DIR/.github/workflows/${NC}"
+    if [ "$PARAM_CICD" = "true" ]; then
+        echo -e "✅ Esteiras modulares de CI/CD atualizadas em: ${BLUE}$TARGET_APP_DIR/.github/workflows/${NC}"
+    else
+        echo -e "⏭️  Esteiras de CI/CD: ${YELLOW}Preservadas intactas (não sobrescritas)${NC}"
+    fi
     echo -e "✅ Protocolo de handoff e tutoriais atualizados em: ${BLUE}$TARGET_APP_DIR/docs/${NC}"
     echo -e "✅ Constituição auditável atualizada em: ${BLUE}$TARGET_APP_DIR/.spec/constituicao.md${NC}"
     echo -e "🔒 ${GREEN}Configurações de ftn.config.json, código e features existentes foram preservados intactos!${NC}"
@@ -444,6 +503,12 @@ else
     echo -e "\n${GREEN}✨ [FTN DevsIA] Todas as estruturas foram configuradas com sucesso em:${NC}"
     echo -e "👉 ${YELLOW}$TARGET_APP_DIR${NC}"
     echo -e "⚙️  Configuração salva em: ${BLUE}$TARGET_APP_DIR/ftn.config.json${NC}\n"
+
+    if [ "$PARAM_CICD" = "true" ]; then
+        echo -e "✅ Esteiras modulares de CI/CD configuradas em: ${BLUE}$TARGET_APP_DIR/.github/workflows/${NC}"
+    else
+        echo -e "⏭️  Esteiras de CI/CD: ${YELLOW}Ignoradas conforme solicitado (esteiras existentes mantidas intactas)${NC}"
+    fi
 
     if [ "$PARAM_DOOP" = "true" ]; then
         if [ "$PARAM_DOOP_MODE" = "local" ]; then

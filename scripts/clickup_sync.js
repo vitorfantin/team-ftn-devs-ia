@@ -10,12 +10,29 @@
  */
 
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
 
-const API_TOKEN = process.env.CLICKUP_API_TOKEN;
-const LIST_ID = process.env.CLICKUP_TASKS_LIST_ID || process.env.CLICKUP_FEATURES_LIST_ID;
+// Carrega configurações de ftn.config.json se existir
+let ftnConfig = {};
+try {
+  const configPath = path.resolve(process.cwd(), 'ftn.config.json');
+  if (fs.existsSync(configPath)) {
+    ftnConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  }
+} catch (e) {}
+
+// Se o ClickUp estiver explicitamente desabilitado no projeto, sai pacificamente
+if (ftnConfig.clickup && ftnConfig.clickup.enabled === false) {
+  console.log("ℹ️ [FTN DevsIA]: ClickUp está desabilitado em ftn.config.json. Rastreamento nativo em Markdown/Spec ativo.");
+  process.exit(0);
+}
+
+const API_TOKEN = process.env.CLICKUP_API_TOKEN || (ftnConfig.clickup && ftnConfig.clickup.apiToken);
+const LIST_ID = process.env.CLICKUP_TASKS_LIST_ID || process.env.CLICKUP_FEATURES_LIST_ID || (ftnConfig.clickup && ftnConfig.clickup.listId);
 
 if (!API_TOKEN) {
-  console.error("❌ ERRO: CLICKUP_API_TOKEN não configurado no ambiente local (.env).");
+  console.error("❌ ERRO: CLICKUP_API_TOKEN não configurado no ambiente (.env ou ftn.config.json).");
   process.exit(1);
 }
 

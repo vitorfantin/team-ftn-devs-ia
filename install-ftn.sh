@@ -29,6 +29,8 @@ read_input() {
 # ─────────────────────────────────────────────────────────────────────────────
 TARGET_APP_DIR=""
 PARAM_AGENTE=""
+PARAM_CLICKUP=""
+PARAM_DOOP=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -40,6 +42,22 @@ while [[ $# -gt 0 ]]; do
             PARAM_AGENTE="$2"
             shift 2
             ;;
+        --with-clickup)
+            PARAM_CLICKUP=true
+            shift
+            ;;
+        --no-clickup)
+            PARAM_CLICKUP=false
+            shift
+            ;;
+        --with-doop)
+            PARAM_DOOP=true
+            shift
+            ;;
+        --no-doop)
+            PARAM_DOOP=false
+            shift
+            ;;
         -d|--dir)
             TARGET_APP_DIR="$2"
             shift 2
@@ -49,6 +67,10 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Opções:"
             echo "  -a, --agent <nome>        Seleciona o agente (antigravity, cursor, codex, claude)"
+            echo "  --with-clickup            Habilita o ClickUp para gestão visual de tarefas"
+            echo "  --no-clickup              Desabilita o ClickUp (rastreamento local via Markdown)"
+            echo "  --with-doop               Habilita o Doop UI/UX Canvas (Docker local/rede)"
+            echo "  --no-doop                 Desabilita o Doop (design specs em Markdown)"
             echo "  -d, --dir <caminho>       Caminho da raiz da aplicação destino"
             echo "  -f, --force, -y, --yes    Execução direta sem confirmações"
             echo "  -h, --help                Exibe esta ajuda"
@@ -107,10 +129,11 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
-# FASE 2: SELEÇÃO DO AGENTE DE IA
+# FASE 2: SELEÇÃO DO AGENTE DE IA & CONFIGURAÇÃO DE CLICKUP E DOOP
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${GREEN}[2/3] Seleção do Agente de IA para a Engine Spec-Driven:${NC}"
+echo -e "${GREEN}[2/3] Configurações de Stack & Ferramentas Opcionais:${NC}"
 
+# 1. Seleção do Agente
 if [ -n "$PARAM_AGENTE" ]; then
     case "$PARAM_AGENTE" in
         1|antigravity) PARAM_AGENTE="antigravity" ;;
@@ -119,7 +142,7 @@ if [ -n "$PARAM_AGENTE" ]; then
         4|claude) PARAM_AGENTE="claude" ;;
         *) PARAM_AGENTE="antigravity" ;;
     esac
-    echo -e "✅ Agente pré-selecionado: ${YELLOW}$PARAM_AGENTE${NC}\n"
+    echo -e "✅ Agente de IA: ${YELLOW}$PARAM_AGENTE${NC}"
 else
     echo "Qual editor/agente de IA você utilizará neste projeto?"
     echo "1) Antigravity (Padrão)"
@@ -139,19 +162,81 @@ else
             PARAM_AGENTE="antigravity"
             ;;
     esac
-    echo -e "${GREEN}✅ Agente selecionado: $PARAM_AGENTE${NC}\n"
+    echo -e "✅ Agente selecionado: ${GREEN}$PARAM_AGENTE${NC}\n"
+fi
+
+# 2. Configuração do ClickUp (Opcional)
+if [ -z "$PARAM_CLICKUP" ]; then
+    echo -e "Deseja utilizar o ${BLUE}ClickUp${NC} para visualização, rastreabilidade e gestão de tarefas das features?"
+    echo "1) Sim (Recomendado - integra cards, status e subtarefas automáticas)"
+    echo "2) Não (Utilizar apenas arquivos locais em Markdown / Spec)"
+    read_input "Escolha uma opção (1 ou 2) [Padrão: 1]: " OPCAO_CLICKUP
+    OPCAO_CLICKUP="${OPCAO_CLICKUP:-1}"
+    if [[ "$OPCAO_CLICKUP" =~ ^(1|[Ss]|[Ss][Ii][Mm]|[Yy]|[Yy][Ee][Ss])$ ]]; then
+        PARAM_CLICKUP=true
+        echo -e "✅ ClickUp: ${GREEN}Habilitado (Padrão para todas as features)${NC}\n"
+    else
+        PARAM_CLICKUP=false
+        echo -e "ℹ️  ClickUp: ${YELLOW}Desabilitado (Rastreamento via Markdown local)${NC}\n"
+    fi
+else
+    echo -e "✅ ClickUp: $([ "$PARAM_CLICKUP" = "true" ] && echo -e "${GREEN}Habilitado${NC}" || echo -e "${YELLOW}Desabilitado${NC}")\n"
+fi
+
+# 3. Configuração do Doop UI/UX Canvas (Opcional)
+if [ -z "$PARAM_DOOP" ]; then
+    echo -e "Deseja utilizar o ${BLUE}Doop UI/UX Canvas${NC} (Docker local/rede) para desenho visual de telas e Design System?"
+    echo "1) Sim (Recomendado - prototipagem visual de telas e tokens antes do código)"
+    echo "2) Não (Utilizar especificações de telas em Markdown puro)"
+    read_input "Escolha uma opção (1 ou 2) [Padrão: 1]: " OPCAO_DOOP
+    OPCAO_DOOP="${OPCAO_DOOP:-1}"
+    if [[ "$OPCAO_DOOP" =~ ^(1|[Ss]|[Ss][Ii][Mm]|[Yy]|[Yy][Ee][Ss])$ ]]; then
+        PARAM_DOOP=true
+        echo -e "✅ Doop UI/UX: ${GREEN}Habilitado (Docker local/rede)${NC}\n"
+    else
+        PARAM_DOOP=false
+        echo -e "ℹ️  Doop UI/UX: ${YELLOW}Desabilitado (Design em Markdown)${NC}\n"
+    fi
+else
+    echo -e "✅ Doop UI/UX: $([ "$PARAM_DOOP" = "true" ] && echo -e "${GREEN}Habilitado${NC}" || echo -e "${YELLOW}Desabilitado${NC}")\n"
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
 # FASE 3: INSTALAÇÃO DA ENGINE E CÓPIA DOS ARQUIVOS PARA DENTRO DAS PASTAS
 # ─────────────────────────────────────────────────────────────────────────────
-echo -e "${GREEN}[3/3] Copiando arquivos para dentro das pastas na aplicação...${NC}"
+echo -e "${GREEN}[3/3] Copiando arquivos e configurando ecossistema na aplicação...${NC}"
 
 cd "$TARGET_APP_DIR" || exit 1
 
 # Inicializa o framework oficial do ONP com o agente escolhido dentro da aplicação
 echo "📦 Executando npx @onovoprogramador/onp-spec para o agente '$PARAM_AGENTE'..."
 npx --yes @onovoprogramador/onp-spec init --agents "$PARAM_AGENTE" 2>/dev/null || true
+
+# Salva a configuração de governança FTN (ftn.config.json)
+echo "⚙️ Salvando configurações em ftn.config.json..."
+cat << EOF > "$TARGET_APP_DIR/ftn.config.json"
+{
+  "version": "1.1.1",
+  "agent": "$PARAM_AGENTE",
+  "clickup": {
+    "enabled": $PARAM_CLICKUP,
+    "apiToken": "",
+    "teamId": "",
+    "spaceId": "",
+    "listId": ""
+  },
+  "doop": {
+    "enabled": $PARAM_DOOP,
+    "url": "http://localhost:3000"
+  },
+  "specDriven": {
+    "engine": "@onovoprogramador/onp-spec",
+    "constitution": ".spec/constituicao.md",
+    "featuresDir": ".spec/features",
+    "verificationDir": ".spec/verification"
+  }
+}
+EOF
 
 # Migra .agent legado para .agents na aplicacao se existir
 if [ -d "$TARGET_APP_DIR/.agent" ]; then
@@ -191,6 +276,7 @@ echo "📋 Copiando perfis especialistas e skills para dentro de .agents/skills/
 cp -f "$SOURCE_FILES"/[0-9]*.md "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 cp -f "$SOURCE_FILES/.agents/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || \
 cp -f "$SOURCE_FILES/.agent/skills/iniciar_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
+cp -f "$SOURCE_FILES/.agents/skills/reuniao_time_ftn.md" "$TARGET_APP_DIR/.agents/skills/" 2>/dev/null || true
 
 echo "⚙️ Copiando esteiras modulares de CI/CD para dentro de .github/workflows/..."
 cp -rf "$SOURCE_FILES/.github/workflows/"* "$TARGET_APP_DIR/.github/workflows/" 2>/dev/null || true
@@ -202,8 +288,10 @@ echo "📝 Copiando constituição e arquitetura base para dentro de .spec/..."
 cp -f "$SOURCE_FILES/.spec/constituicao.md" "$TARGET_APP_DIR/.spec/" 2>/dev/null || true
 cp -f "$SOURCE_FILES/.spec/arquitetura.md" "$TARGET_APP_DIR/.spec/" 2>/dev/null || true
 
-echo "🐳 Copiando stack do Doop UI/UX Canvas para dentro de docker/doop/..."
-cp -rf "$SOURCE_FILES/docker/doop/"* "$TARGET_APP_DIR/docker/doop/" 2>/dev/null || true
+if [ "$PARAM_DOOP" = "true" ]; then
+    echo "🐳 Copiando stack do Doop UI/UX Canvas para dentro de docker/doop/..."
+    cp -rf "$SOURCE_FILES/docker/doop/"* "$TARGET_APP_DIR/docker/doop/" 2>/dev/null || true
+fi
 
 echo "🛠️ Copiando utilitários para dentro de scripts/..."
 cp -rf "$SOURCE_FILES/scripts/"* "$TARGET_APP_DIR/scripts/" 2>/dev/null || true
@@ -214,6 +302,9 @@ if [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ]; then
     rm -rf "$TEMP_DIR"
 fi
 
-echo -e "\n${GREEN}✨ [FTN DevsIA] Todos os arquivos foram copiados com sucesso para dentro das pastas em:${NC}"
-echo -e "👉 ${YELLOW}$TARGET_APP_DIR${NC}\n"
-echo -e "Abra o seu editor ($PARAM_AGENTE) na pasta da sua aplicação e digite ${YELLOW}/iniciar-time-ftn${NC} no chat para começar."
+echo -e "\n${GREEN}✨ [FTN DevsIA] Todas as estruturas foram configuradas com sucesso em:${NC}"
+echo -e "👉 ${YELLOW}$TARGET_APP_DIR${NC}"
+echo -e "⚙️  Configuração salva em: ${BLUE}$TARGET_APP_DIR/ftn.config.json${NC}\n"
+echo -e "Comandos disponíveis no chat da sua IA ($PARAM_AGENTE):"
+echo -e "  💬 ${YELLOW}/reuniao-time-ftn${NC} : Convoca a mesa com todos os especialistas para ouvir a demanda do cliente e alinhar dúvidas"
+echo -e "  🚀 ${YELLOW}/iniciar-time-ftn${NC} : Inicializa a governança e o ciclo de desenvolvimento da aplicação"

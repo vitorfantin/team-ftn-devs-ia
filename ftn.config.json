@@ -1,0 +1,21 @@
+{
+  "version": "1.1.1",
+  "agent": "antigravity",
+  "clickup": {
+    "enabled": true,
+    "apiToken": "",
+    "teamId": "",
+    "spaceId": "",
+    "listId": ""
+  },
+  "doop": {
+    "enabled": true,
+    "url": "http://localhost:3000"
+  },
+  "specDriven": {
+    "engine": "@onovoprogramador/onp-spec",
+    "constitution": ".spec/constituicao.md",
+    "featuresDir": ".spec/features",
+    "verificationDir": ".spec/verification"
+  }
+}

@@ -67,14 +67,32 @@ Abra o terminal na pasta da sua aplicação existente e execute o instalador ofi
 
 ---
 
-### 3. Ativação no Chat da IA
-Abra o seu editor na pasta da **sua aplicação**, acesse o chat da IA e digite o comando mestre:
-```text
-/iniciar-time-ftn
-```
-O agente `@ProductManager` assumirá o controle imediato:
-* Se detectar que você está no repositório matriz clonado, ele **bloqueia** a criação de arquivos locais e pede o caminho da aplicação;
-* Se estiver na pasta da sua aplicação, ele valida as estruturas instaladas e dispara a **Fase Zero de Alinhamento**.
+### 3. Comandos de Ativação no Chat da IA
+Abra o seu editor na pasta da **sua aplicação** e utilize os comandos mestres conforme a necessidade:
+
+#### 💬 `/reuniao-time-ftn` (Kickoff de Demanda com o Cliente)
+Use este comando para convocar **todos os especialistas do time** para uma mesa redonda:
+* O `@ProductManager` abre a reunião e ouve o que o cliente/usuário deseja construir;
+* Cada especialista (@TechLead, @UIUXDesigner, @BackendDev, @FrontendDev, @MobileDev, @QATester, @DevOps, @SecOps) faz perguntas pontuais para entender profundamente as regras, telas, dados e riscos;
+* Com tudo alinhado e homologado pelo cliente, o PM gera a spec no padrão ONP (`npx onp-spec new <feature>`) com histórias, critérios de aceite e tabela de `qa-id`s;
+* O time se dispersa e **cada especialista executa a sua parte** rigorosamente através do [Protocolo de Handoff](file:///Users/vitorfantin/.gemini/antigravity/worktrees/team-ftn-devs-ia/analise_designacao_tarefas_especificas/docs/protocolo_handoff.md).
+
+#### 🚀 `/iniciar-time-ftn` (Inicialização da Governança do Projeto)
+Use este comando na primeira vez para validar as estruturas instaladas na aplicação, configurar a `.spec/constituicao.md` e alinhar escopo de legado.
+
+---
+
+## ⚙️ Configuração Modular: ClickUp e Doop Opcionais (`ftn.config.json`)
+
+O instalador `install-ftn.sh` pergunta interativamente as preferências do seu projeto e salva em `ftn.config.json`:
+* **ClickUp (Opcional):**
+  - **Habilitado:** Cria cards de features, quebra subtarefas técnicas automáticas e sincroniza status (`docs/tutoriais/integracao_clickup.md`).
+  - **Desabilitado:** Gerenciamento ágil 100% nativo em arquivos Markdown (`task.md` e `.spec/features/`).
+* **Doop UI/UX Canvas (Opcional):**
+  - **Habilitado:** O `@UIUXDesigner` utiliza o Doop Canvas (`http://localhost:3000`) para prototipar telas e tokens antes de liberar Front e Mobile.
+  - **Desabilitado:** O design e componentes são documentados em Markdown puro em `docs/design/design_system.md`.
+* **Engine Spec-Driven Integrada:**
+  - Trabalha nativamente com o `@onovoprogramador/onp-spec` para garantir rastreabilidade mecânica: História de Usuário (`US-xxx`) → Critério de Aceite (`AC-xxx`) → Tarefa (`T-xxx`) → Casos de Teste de QA.
 
 ---
 
@@ -82,18 +100,20 @@ O agente `@ProductManager` assumirá o controle imediato:
 
 ```text
 raiz-do-seu-projeto/
+├── ftn.config.json                     # ⚙️ Configurações ativas do projeto (ClickUp, Doop e Engine Spec)
 ├── .agents/
 │   └── skills/                         # 👥 As Mentes Especialistas do Time FTN
-│       ├── iniciar_time_ftn.md         # O arquivo mestre que habilita o comando /iniciar-time-ftn
+│       ├── reuniao_time_ftn.md         # 💬 Comando /reuniao-time-ftn (Mesa redonda e alinhamento com cliente)
+│       ├── iniciar_time_ftn.md         # 🚀 Comando /iniciar-time-ftn (Inicialização do projeto)
 │       ├── 1_ProductManager.md         # Fase Zero, Escopo, Negócio e Tabela Mestra de qa-id
 │       ├── 2_TechLead.md               # Arquitetura, Postgres 18.6, Pirâmide de testes e SOLID
-│       ├── 3_UIUXDesigner.md           # Design System, WCAG e Fallback Anti-Crash (btn-error-retry)
+│       ├── 3_UIUXDesigner.md           # Design System (Doop ou Markdown), WCAG e Fallback Anti-Crash
 │       ├── 4a_FrontendDev.md           # Desenvolvimento Web, TDD 90% e Injeção de qa-ids
 │       ├── 4b_MobileDev.md             # Desenvolvimento Flutter, Secure Storage e Performance
-│       ├── 5_BackendDev.md             # APIs seguras, OWASP Top 10 e Migrations
-│       ├── 6_QATester.md               # Automações E2E sem XPath, Testes de Stress e Gatekeeper de PR
+│       ├── 5_BackendDev.md             # APIs seguras, Postgres 18.6, DER vivo e Migrations
+│       ├── 6_QATester.md               # Casos de teste prévios, Automações E2E sem XPath e Gatekeeper
 │       ├── 7_DevOps.md                 # Docker Swarm, Traefik, Basic Auth e CI/CD Modular
-│       └── 8_SecOps.md                 # Auditoria SAST/DAST, .gitignore e Zero-Secret Leak
+│       └── 8_SecOps.md                 # Auditoria SAST/LGPD, .gitignore e Zero-Secret Leak
 │
 ├── .github/
 │   └── workflows/                      # ⚙️ Esteiras Modulares de CI/CD (Copiadas para os projetos destino)

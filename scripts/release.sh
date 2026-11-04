@@ -73,7 +73,7 @@ else
 fi
 
 echo -e "\n🧹 ${GREEN}[3/4] Higienizando Releases no GitHub (Mantendo apenas as 3 últimas)...${NC}"
-RELEASES_JSON=$(curl -s -H "Authorization: token $TOKEN" https://api.github.com/repos/$REPO/releases)
+RELEASES_JSON=$(curl -s -H "Authorization: token $TOKEN" https://api.github.com/repos/$REPO/releases | jq '[.[] | select(.draft == false)] | sort_by(.published_at // .created_at) | reverse')
 COUNT_RELEASES=$(echo "$RELEASES_JSON" | jq '. | length')
 
 if [ "$COUNT_RELEASES" -gt 3 ]; then
